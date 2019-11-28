@@ -6,5 +6,6 @@ Plus d'infos : https://cp3-git.irmp.ucl.ac.be/mdelcourt/lphys1201/wikis/projet-T
 
 ### utilisation
 ```
+$ chmod +x setup.sh
 $ ./setup.sh
 ```
