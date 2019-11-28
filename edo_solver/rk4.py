@@ -37,8 +37,8 @@ class RK4Method(EDONumericalResolution):
     k1 = self._edo(tn, y)
     k2 = self._edo(tn + (self._time_interval / 2), y + ((self._time_interval / 2) * k1))
     k3 = self._edo(tn + (self._time_interval / 2), y + ((self._time_interval / 2) * k2))
-    k4 = self._edo(tn + self._time_interval, y + (self._time_interval * k2))
-    return (k1 + 2*k2 + 3*k3 + k4)
+    k4 = self._edo(tn + self._time_interval, y + (self._time_interval * k3))
+    return (k1 + 2*k2 + 2*k3 + k4)
 
   def resolve(self):
     y = np.array(self._ci) # [I(0), X(0)]

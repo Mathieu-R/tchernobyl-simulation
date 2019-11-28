@@ -2,8 +2,7 @@
 import numpy as np
 from edo_solver.rk4 import RK4Method
 
-# résoudre les équations décrivants l'évolution 
-# de l'abondance en iode et en xénon
+# CONSTANTES #
 
 # constantes de désintégration
 LAMBDA_X = 2.0996E-5 # xénon 135
@@ -26,25 +25,31 @@ PHI = 3e13
 # de fission thermique
 SIGMA_F = 0.09840 
 
-# default values
-T0 = 0
-TIME_INTERVAL = 10
-STOP = 172800 # 2 jours
-ISOTOPES_CI = [1.0, 1.0]
-IODE_CI = [1.0, 0.0]
-XENON_CI = [1.0, 0.0]
+# STEP 1
+# résoudre les équations décrivants l'évolution 
+# de l'abondance en iode et en xénon
 
-title = "Abondance d'iode et de xénon entre 0 et 48h"
-x_label = "temps (h)"
-y_label = "Abondance"
-legends = ['Iode', 'Xénon']
-
-def isotopes_abundance(t, y):
+def isotopes_abundance_edo(t, y):
+  # y = [I, X]
   return np.array([
-    (GAMMA_I * SIGMA_F * PHI) - (LAMBDA_I * y[0]) - (SIGMA_I * y[0] * PHI),
-    (GAMMA_X * SIGMA_F) * (PHI + LAMBDA_I * y[0]) - (SIGMA_X * PHI-LAMBDA_X * y[1])
+    (GAMMA_I * SIGMA_F * PHI) - (LAMBDA_I * y[0]) - (SIGMA_I * y[0] * PHI), # edo iode
+    (GAMMA_X * SIGMA_F) * (PHI + LAMBDA_I * y[0]) - (SIGMA_X * PHI-LAMBDA_X * y[1]) # edo xénon
   ])
 
-isotope_abundance_rk4 = RK4Method(title, y_label, x_label, legends, isotopes_abundance, T0, ISOTOPES_CI, TIME_INTERVAL, STOP)
-isotope_abundance_rk4.resolve()
-isotope_abundance_rk4.graph()
+def compute_isotopes_abundance():
+  # default values
+  T0 = 0
+  TIME_INTERVAL = 10 # 10s
+  STOP = 172800 # 2 jours
+  ISOTOPES_CI = [1.0, 1.0] # [I(T_0), X(T_0)]
+
+  title = "Abondance d'iode et de xénon entre 0 et 48h"
+  x_label = "temps (h)"
+  y_label = "Abondance"
+  legends = ['Iode', 'Xénon']
+
+  isotope_abundance_rk4 = RK4Method(title, y_label, x_label, legends, isotopes_abundance_edo, T0, ISOTOPES_CI, TIME_INTERVAL, STOP)
+  isotope_abundance_rk4.resolve()
+  isotope_abundance_rk4.graph()
+
+compute_isotopes_abundance()
