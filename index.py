@@ -29,26 +29,22 @@ SIGMA_F = 0.09840
 # default values
 T0 = 0
 TIME_INTERVAL = 10
-STOP = 172800
+STOP = 172800 # 2 jours
+ISOTOPES_CI = [1.0, 1.0]
 IODE_CI = [1.0, 0.0]
 XENON_CI = [1.0, 0.0]
 
-def iode_abundance(t, I):
-  # I[0] = I ; I[1] = I'
+title = "Abondance d'iode et de xénon entre 0 et 48h"
+x_label = "temps (h)"
+y_label = "Abondance"
+legends = ['Iode', 'Xénon']
+
+def isotopes_abundance(t, y):
   return np.array([
-    (GAMMA_I * SIGMA_F * PHI) - (LAMBDA_I * I[0]) - (SIGMA_I * I[0] * PHI)
+    (GAMMA_I * SIGMA_F * PHI) - (LAMBDA_I * y[0]) - (SIGMA_I * y[0] * PHI),
+    (GAMMA_X * SIGMA_F) * (PHI + LAMBDA_I * y[0]) - (SIGMA_X * PHI-LAMBDA_X * y[1])
   ])
 
-iode_abundance_rk4 = RK4Method("Abondance d'iode", "I (iode)", "temps (s)", iode_abundance, T0, IODE_CI, TIME_INTERVAL, STOP)
-iode_abundance_rk4.resolve()
-iode_abundance_rk4.graph()
-
-def xenon_abundance(t, X):
-  I = iode_abundance(t, )
-  return np.array([
-    (GAMMA_X * SIGMA_F) * (PHI + LAMBDA_I * I[0]) - (SIGMA_X * PHI-LAMBDA_X * X[0])
-  ])
-
-xenon_abundance_rk4 = RK4Method("Abondance de xenon", "X (xénon)", "temps (s)", xenon_abundance, T0, XENON_CI, TIME_INTERVAL, STOP)
-xenon_abundance_rk4.resolve()
-xenon_abundance_rk4.graph()
+isotope_abundance_rk4 = RK4Method(title, y_label, x_label, legends, isotopes_abundance, T0, ISOTOPES_CI, TIME_INTERVAL, STOP)
+isotope_abundance_rk4.resolve()
+isotope_abundance_rk4.graph()
