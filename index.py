@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import numpy as np
+from decimal import Decimal
 from edo_solver.rk4 import RK4Method
 
 # CONSTANTES #
@@ -57,8 +58,18 @@ def compute_isotopes_abundance(xenon_ci, stop, title):
   isotope_abundance_rk4.resolve()
   isotope_abundance_rk4.graph()
 
+# valeur stables de xénon et iode après 2 jours
+def stable_values():
+  phi = 3e13
+
+  I = GAMMA_I * SIGMA_F * phi / (LAMBDA_I + SIGMA_I)
+  X = (1 / ((SIGMA_X * phi) + LAMBDA_X)) * (GAMMA_X * SIGMA_F * phi) + (LAMBDA_I * I)
+  print("Après 2 jours, pour un flux de 3e13 :")
+  print('Iode:', '%.2E' % Decimal(I),' Xénon:', '%.2E' % Decimal(X))
+
 # 1. Quantité de xénon initiale : 0.0
 # Temps de simulation : 2 jours
+stable_values()
 compute_isotopes_abundance(xenon_ci=0.0, stop=172800, title="Abondance d'iode et de xénon entre 0 et 2 jours, Xénon au départ : 0")
 
 # 2. Quantité de xénon initiale : 2e15
