@@ -57,15 +57,15 @@ def compute_isotopes_abundance(xenon_ci, stop, title):
   isotope_abundance_rk4.resolve()
   isotope_abundance_rk4.graph()
 
-
 # 1. Quantité de xénon initiale : 0.0
-# Temps de simulation : 5 jours
-compute_isotopes_abundance(xenon_ci=0.0, stop=432000, title="Abondance d'iode et de xénon entre 0 et 48h, Xénon au départ : 0")
+# Temps de simulation : 2 jours
+compute_isotopes_abundance(xenon_ci=0.0, stop=172800, title="Abondance d'iode et de xénon entre 0 et 2 jours, Xénon au départ : 0")
 
 # 2. Quantité de xénon initiale : 2e15
 # Temps de simulation : 5 jours
-compute_isotopes_abundance(xenon_ci=2e15, stop=432000, title="Abondance d'iode et de xénon entre 0 et 48h, Xénon au départ : 2e15")
+compute_isotopes_abundance(xenon_ci=2e15, stop=432000, title="Abondance d'iode et de xénon entre 0 et 5 jours, Xénon au départ : 2e15")
 
-# 2. Quantité de xénon initiale : 2e15
+# 3. Quantité de xénon initiale : 2e15
 # Temps de simulation : 5 jours
-compute_isotopes_abundance(xenon_ci=2e15, stop=432000, title="Abondance d'iode et de xénon entre 0 et 48h, Xénon au départ : 2e15, Flux = 0 après 3 jours")
+# Flux après 3 jours : 0
+compute_isotopes_abundance(xenon_ci=2e15, stop=432000, title="Abondance d'iode et de xénon entre 0 et 5 jours, Xénon au départ : 2e15, Flux = 0 après 3 jours")

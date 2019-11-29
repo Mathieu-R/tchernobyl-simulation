@@ -60,7 +60,6 @@ class RK4Method(EDONumericalResolution):
       self._time_set.append(self.second_to_hour(t))
       self._y_set.append(y.copy())
     
-    # matrix transposition
     self._y_set = np.array(self._y_set)
 
   def second_to_hour (self, seconds):
