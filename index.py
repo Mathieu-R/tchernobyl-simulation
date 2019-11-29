@@ -19,7 +19,6 @@ SIGMA_X = 2.65E-18 # xénon 135
 SIGMA_I = 7E-24 # iode 135
 
 # PHI : Flux de neutrons
-PHI = 3e13
 
 # Section efficace macroscopique
 # de fission thermique
@@ -30,20 +29,26 @@ SIGMA_F = 0.09840
 # de l'abondance en iode et en xénon
 
 def isotopes_abundance_edo(t, y):
+  phi = 3e13
+
+  # apr§s 2 jours
+  if (t >= 259200): 
+    phi = 0
+
   # y = [I, X]
   return np.array([
-    (GAMMA_I * SIGMA_F * PHI) - (LAMBDA_I * y[0]) - (SIGMA_I * y[0] * PHI), # edo iode
-    (GAMMA_X * SIGMA_F) * (PHI + LAMBDA_I * y[0]) - (SIGMA_X * PHI-LAMBDA_X * y[1]) # edo xénon
+    (GAMMA_I * SIGMA_F * phi) - (LAMBDA_I * y[0]) - (SIGMA_I * y[0] * phi), # edo iode
+    (GAMMA_X * SIGMA_F * phi) + (LAMBDA_I * y[0]) - (SIGMA_X * y[1] * phi) - (LAMBDA_X * y[1]) # edo xénon
   ])
 
-def compute_isotopes_abundance():
+def compute_isotopes_abundance(xenon_ci, stop, title):
   # default values
   T0 = 0
   TIME_INTERVAL = 10 # 10s
-  STOP = 172800 # 2 jours
-  ISOTOPES_CI = [1.0, 1.0] # [I(T_0), X(T_0)]
+  STOP = stop
+  ISOTOPES_CI = [1.0, xenon_ci] # [I(T_0), X(T_0)]
 
-  title = "Abondance d'iode et de xénon entre 0 et 48h"
+  title = title
   x_label = "temps (h)"
   y_label = "Abondance"
   legends = ['Iode', 'Xénon']
@@ -52,4 +57,15 @@ def compute_isotopes_abundance():
   isotope_abundance_rk4.resolve()
   isotope_abundance_rk4.graph()
 
-compute_isotopes_abundance()
+
+# 1. Quantité de xénon initiale : 0.0
+# Temps de simulation : 5 jours
+compute_isotopes_abundance(xenon_ci=0.0, stop=432000, title="Abondance d'iode et de xénon entre 0 et 48h, Xénon au départ : 0")
+
+# 2. Quantité de xénon initiale : 2e15
+# Temps de simulation : 5 jours
+compute_isotopes_abundance(xenon_ci=2e15, stop=432000, title="Abondance d'iode et de xénon entre 0 et 48h, Xénon au départ : 2e15")
+
+# 2. Quantité de xénon initiale : 2e15
+# Temps de simulation : 5 jours
+compute_isotopes_abundance(xenon_ci=2e15, stop=432000, title="Abondance d'iode et de xénon entre 0 et 48h, Xénon au départ : 2e15, Flux = 0 après 3 jours")
