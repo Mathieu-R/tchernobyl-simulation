@@ -47,22 +47,22 @@ def stable_values ():
   print('Iode:', '%.2E' % Decimal(I),' Xénon:', '%.2E' % Decimal(X))
 
 
-def start ():
-  main_questions = [
+def command_line ():
+  command_line_questions = [
     {
       "type": "list",
       "name": "simu-tchernobyl",
-      "message": "Simulation Tchernobyl",
+      "message": "Simulation Tchernobyl en ligne de commande",
       "choices": [
         "Simuler l'abondance d'isotopes dans le réacteur (iode et xénon)"
       ]
     }
   ]
 
-  main_answers = prompt(main_questions)
-  main_answer = main_answers["simu-tchernobyl"]
+  command_line_answers = prompt(command_line_questions)
+  command_line_answer = command_line_answers["simu-tchernobyl"]
 
-  if (main_answer == "Simuler l'abondance d'isotopes dans le réacteur (iode et xénon)"):
+  if (command_line_answer == "Simuler l'abondance d'isotopes dans le réacteur (iode et xénon)"):
     abundance_category()
 
 def abundance_category ():
@@ -118,4 +118,23 @@ def abundance_category ():
     return
 
 if __name__ == "__main__":
-  start()
+  start_questions = [
+    {
+      "type": "list",
+      "name": "simu-tchernobyl",
+      "message": "Simulation Tchernobyl",
+      "choices": [
+        "Ligne de commande",
+        "GUI"
+      ]
+    }
+  ]
+  
+  start_answers = prompt(start_questions)
+  start_answer = start_answers["simu-tchernobyl"]
+
+  if (start_answer == "Ligne de commande"):
+    command_line()
+  elif (start_answer == "GUI"):
+    pass
+    # Lancer l'interface graphique
