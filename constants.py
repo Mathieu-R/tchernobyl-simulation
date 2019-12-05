@@ -15,7 +15,19 @@ SIGMA_X = 2.65E-18 # xénon 135
 SIGMA_I = 7E-24 # iode 135
 
 # PHI : Flux de neutrons
+PHI = 3e13
 
 # Section efficace macroscopique
 # de fission thermique
 SIGMA_F = 0.09840 
+
+k = 3
+TAU = 1000
+
+SIGMA_U = 0.1355
+
+SIGMA_B_MIN = 0.1
+SIGMA_B_MAX = 0.2
+SIGMA_B_STEP = 0.01
+
+STABLE_FLOW = 10E15
