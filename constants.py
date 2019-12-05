@@ -24,10 +24,20 @@ SIGMA_F = 0.09840
 k = 3
 TAU = 1000
 
+# Section efficace des neutrons avec l'Uranium
 SIGMA_U = 0.1355
 
+# section efficace des neutrons
+# avec barres de ralentissement
 SIGMA_B_MIN = 0.1
 SIGMA_B_MAX = 0.2
 SIGMA_B_STEP = 0.01
 
-STABLE_FLOW = 10E15
+# Flux de départ
+FLOW_START = 1E10
+
+# Flux stable
+STABLE_FLOW = 1E15
+
+# Drop du flux à 1% de sa valeur stable
+FLOW_DROP = STABLE_FLOW / 100

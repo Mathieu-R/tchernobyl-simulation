@@ -3,10 +3,12 @@ import numpy as np
 from decimal import Decimal
 from edo_solver.rk4 import RK4Method
 from edo_solver.neutrons_flow import NeutronsFlow
+from edo_solver.isotopes_abundance import IsotopesAbundance
 from PyInquirer import prompt, print_json
 
-from utils import day_to_seconds
-from constants import GAMMA_I, GAMMA_X, SIGMA_F, LAMBDA_I, LAMBDA_X, SIGMA_I, SIGMA_X, PHI, TAU, k, SIGMA_U, SIGMA_B_MAX, SIGMA_B_MIN, SIGMA_B_STEP, STABLE_FLOW
+from utils import day_to_seconds, seconds_to_hour
+from constants import (GAMMA_I, GAMMA_X, SIGMA_F, LAMBDA_I, LAMBDA_X, SIGMA_I, SIGMA_X, 
+  PHI, TAU, k, SIGMA_U, SIGMA_B_MAX, SIGMA_B_MIN, SIGMA_B_STEP, STABLE_FLOW, FLOW_START, FLOW_DROP)
 
 def isotopes_abundance_edo (self, t, y):
   # après 3 jours
@@ -31,7 +33,7 @@ def compute_isotopes_abundance (xenon_ci, stop, title, modify_flow = False, day_
   y_label = "Abondance"
   legends = ['Iode', 'Xénon']
 
-  isotope_abundance_rk4 = RK4Method(title, y_label, x_label, legends, isotopes_abundance_edo, T0, ISOTOPES_CI, TIME_INTERVAL, STOP)
+  isotope_abundance_rk4 = IsotopesAbundance(title, y_label, x_label, legends, isotopes_abundance_edo, T0, ISOTOPES_CI, TIME_INTERVAL, STOP)
   isotope_abundance_rk4.resolve()
   isotope_abundance_rk4.graph()
 
@@ -41,17 +43,25 @@ def stable_values ():
 
   I = (GAMMA_I * SIGMA_F * phi) / (LAMBDA_I + SIGMA_I * phi)
   X = ((GAMMA_X * SIGMA_F * phi) + (LAMBDA_I * I)) / ((SIGMA_X * phi) + (LAMBDA_X))
-  #X = (1 / ((SIGMA_X * phi) + LAMBDA_X)) * (GAMMA_X * SIGMA_F * phi) + (LAMBDA_I * I)
   print("Après 2 jours, pour un flux de 3e13 :")
   print('Iode:', '%.2E' % Decimal(I),' Xénon:', '%.2E' % Decimal(X))
 
-def neutrons_flow_edo (self, t, y, modify_flow, day_of_modification, next_flow):
+def neutrons_flow_edo (self, t, y):
   #print('Flux de neutrons:', '%.2E' % Decimal(y[2]))
+
+  # Si le flux est plus ou moins stabilisé
+  # On démarre un timer et on attend 24 heures
+  # Après cela, on baisse le flux à 1% de sa valeur stable
+  if (y[2] > STABLE_FLOW - 0.5E10 and y[2] < STABLE_FLOW + 0.5E10 and not self._timer_started):
+    self._timer_started = True
+    self._timer_start = t
+
+  if (self._timer_started and seconds_to_hour(t - self._timer_start) >= 24):
+    y[2] = FLOW_DROP
 
   # Si le flux est plus bas que le flux stable
   # et que sigma_b ne descend pas en dessous de la valeur minimale
   # on diminue la section efficace des neutrons (sigma_b)
-  #print(y[2])
   if (y[2] < STABLE_FLOW and self._sigma_b > SIGMA_B_MIN):
     self._sigma_b -= SIGMA_B_STEP
   
@@ -68,12 +78,12 @@ def neutrons_flow_edo (self, t, y, modify_flow, day_of_modification, next_flow):
     ((y[2] / TAU) * k * (SIGMA_U - (SIGMA_X * y[1]) - self._sigma_b)) # edo flux de neutrons
 ])
 
-def compute_neutrons_flow (xenon_ci, stop, title):
+def compute_neutrons_flow (xenon_start, stop, title):
   # default values
   T0 = 0
   TIME_INTERVAL = 10 # 10s
   STOP = stop
-  FLOW_CI = [1.0, xenon_ci, 10e10] # [I(T_0), X(T_0), PHI[T_0]]
+  FLOW_CI = [1.0, xenon_start, FLOW_START] # [I(T_0), X(T_0), PHI[T_0]]
 
   title = title
   x_label = "temps (h)"
@@ -91,7 +101,8 @@ def command_line ():
       "name": "simu-tchernobyl",
       "message": "Simulation Tchernobyl en ligne de commande",
       "choices": [
-        "Simuler l'abondance d'isotopes dans le réacteur (iode et xénon)"
+        "Simuler l'abondance d'isotopes dans le réacteur (iode et xénon)",
+        "Simuler le flux de neutrons"
       ]
     }
   ]
@@ -101,6 +112,14 @@ def command_line ():
 
   if (command_line_answer == "Simuler l'abondance d'isotopes dans le réacteur (iode et xénon)"):
     abundance_category()
+  
+  elif (command_line_answer == "Simuler le flux de neutrons"):
+    compute_neutrons_flow(
+      xenon_start=0,
+      stop=day_to_seconds(10),
+      title="Flux de neutrons - stabilisation"
+    )
+
 
 def abundance_category ():
   abundances_questions = [
@@ -111,8 +130,7 @@ def abundance_category ():
       "choices": [
         "Après 2 jours - quantité initiale de xénon : 0",
         "Après 5 jours - quanité initiale de xénon : 2e15",
-        "Après 5 jours - quantité initiale de xénon : 2e15, flux nul après 3 jours",
-        "Flux de neutrons"
+        "Après 5 jours - quantité initiale de xénon : 2e15, flux nul après 3 jours"
       ]
     }
   ]
@@ -152,14 +170,6 @@ def abundance_category ():
       modify_flow=True,
       day_of_modification=3,
       next_flow=0
-    )
-    return
-
-  if (abundance_answer == "Flux de neutrons"):
-    compute_neutrons_flow(
-      xenon_ci=0,
-      stop=day_to_seconds(10),
-      title="Flux de neutrons - stabilisation"
     )
     return
 
