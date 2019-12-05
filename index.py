@@ -46,7 +46,7 @@ def stable_values ():
   print('Iode:', '%.2E' % Decimal(I),' Xénon:', '%.2E' % Decimal(X))
 
 def neutrons_flow_edo (self, t, y, modify_flow, day_of_modification, next_flow):
-  print('Flux de neutrons:', '%.2E' % Decimal(y[2]))
+  #print('Flux de neutrons:', '%.2E' % Decimal(y[2]))
 
   # Si le flux est plus bas que le flux stable
   # et que sigma_b ne descend pas en dessous de la valeur minimale
