@@ -6,6 +6,7 @@ Plus d'infos : https://cp3-git.irmp.ucl.ac.be/mdelcourt/lphys1201/wikis/projet-T
 
 ### utilisation
 ```
-$ chmod +x setup.sh
+$ chmod +x setup.sh start.sh
 $ ./setup.sh
+$ ./start.sh
 ```
