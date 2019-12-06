@@ -5,6 +5,7 @@ from edo_solver.rk4 import RK4Method
 from edo_solver.neutrons_flow import NeutronsFlow
 from edo_solver.isotopes_abundance import IsotopesAbundance
 from PyInquirer import prompt, print_json
+import matplotlib.pyplot as plt
 
 from utils import day_to_seconds, seconds_to_hour
 from constants import (GAMMA_I, GAMMA_X, SIGMA_F, LAMBDA_I, LAMBDA_X, SIGMA_I, SIGMA_X, 
@@ -57,7 +58,19 @@ def neutrons_flow_edo (self, t, y):
     self._timer_start = t
 
   if (self._timer_started and seconds_to_hour(t - self._timer_start) >= 24):
-    y[2] = FLOW_DROP
+    # Si le flux est plus bas que le flux stable
+    # et que sigma_b ne descend pas en dessous de la valeur minimale
+    # on diminue la section efficace des neutrons (sigma_b)
+    if (y[2] < FLOW_DROP and self._sigma_b > SIGMA_B_MIN):
+      self._sigma_b -= SIGMA_B_STEP
+    
+    # Si le flux est plus haut que le flux stable 
+    # et que sigma_b ne dépasse pas sa valeur maximale
+    # on diminue la section efficace des neutrons (sigma_b)
+    elif (y[2] > FLOW_DROP and self._sigma_b < SIGMA_B_MAX):
+      self._sigma_b += SIGMA_B_STEP
+
+  #if (y[2] > STABLE_FLOW - (1E10 / 1000)
 
   # Si le flux est plus bas que le flux stable
   # et que sigma_b ne descend pas en dessous de la valeur minimale
@@ -70,6 +83,8 @@ def neutrons_flow_edo (self, t, y):
   # on diminue la section efficace des neutrons (sigma_b)
   elif (y[2] > STABLE_FLOW and self._sigma_b < SIGMA_B_MAX):
     self._sigma_b += SIGMA_B_STEP
+
+  self._sigma_b_set.append(self._sigma_b)
   
   # y = [I, X, PHI]
   return np.array([
@@ -93,6 +108,7 @@ def compute_neutrons_flow (xenon_start, stop, title):
   isotope_abundance_rk4 = NeutronsFlow(title, y_label, x_label, legends, neutrons_flow_edo, T0, FLOW_CI, TIME_INTERVAL, STOP)
   isotope_abundance_rk4.resolve()
   isotope_abundance_rk4.graph()
+  isotope_abundance_rk4.graph_sigma_b()
 
 def command_line ():
   command_line_questions = [
@@ -116,7 +132,7 @@ def command_line ():
   elif (command_line_answer == "Simuler le flux de neutrons"):
     compute_neutrons_flow(
       xenon_start=0,
-      stop=day_to_seconds(10),
+      stop=day_to_seconds(20),
       title="Flux de neutrons - stabilisation"
     )
 

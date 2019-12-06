@@ -6,6 +6,7 @@ class NeutronsFlow(RK4Method):
     self._sigma_b = SIGMA_B_MIN
     self._timer_started = False
     self._timer_start = 0
+    self._sigma_b_set = []
     super().__init__(title, y_label, x_label, edo_legends, edo, t0, ci, time_interval, stop)
 
 

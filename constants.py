@@ -31,7 +31,9 @@ SIGMA_U = 0.1355
 # avec barres de ralentissement
 SIGMA_B_MIN = 0.1
 SIGMA_B_MAX = 0.2
-SIGMA_B_STEP = 0.01
+
+# "vitesse" des barres de ralentissement
+SIGMA_B_STEP = 0.0001
 
 # Flux de départ
 FLOW_START = 1E10

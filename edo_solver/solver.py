@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 
 class EDONumericalResolution:
   def __init__(self, title, y_label, x_label, edo_legends, edo, t0, ci, time_interval, stop):
@@ -31,5 +32,15 @@ class EDONumericalResolution:
     plt.xlabel(self._x_label)
     plt.ylabel(self._y_label)
     plt.yscale('log')
+    #plt.grid(True,which="both").
+    plt.show()
+
+  def graph_sigma_b(self):
+    plt.plot(self._time_set, np.array(self._sigma_b_set))
+    plt.title("Barres de contrôle")
+    # https://stackoverflow.com/questions/44632571/pyplot-legend-only-displaying-one-letter?noredirect=1&lq=1
+    plt.legend(["Section efficace des neutrons avec les barres de contrôle"], loc="upper right")
+    plt.xlabel(self._x_label)
+    plt.ylabel("Sigma B")
     #plt.grid(True,which="both").
     plt.show()
