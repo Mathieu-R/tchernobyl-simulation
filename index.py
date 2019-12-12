@@ -1,22 +1,18 @@
 #!/usr/bin/env python3
 import numpy as np
+import matplotlib.pyplot as plt
+
 from decimal import Decimal
 from edo_solver.rk4 import RK4Method
 from edo_solver.neutrons_flow import NeutronsFlow
 from edo_solver.isotopes_abundance import IsotopesAbundance
+from edo_solver.edo import isotopes_abundance_edo, neutrons_flow_edo
 from PyInquirer import prompt, print_json
-import matplotlib.pyplot as plt
+from gui.gui import gui
 
 from utils import day_to_seconds, seconds_to_hour
 from constants import (GAMMA_I, GAMMA_X, SIGMA_F, LAMBDA_I, LAMBDA_X, SIGMA_I, SIGMA_X, 
   PHI, TAU, k, SIGMA_U, SIGMA_B_MAX, SIGMA_B_MIN, SIGMA_B_STEP, STABLE_FLOW, FLOW_START, FLOW_DROP)
-
-def isotopes_abundance_edo (self, t, y):
-  # y = [I, X]
-  return np.array([
-    (GAMMA_I * SIGMA_F * self._phi) - (LAMBDA_I * y[0]) - (SIGMA_I * y[0] * self._phi), # edo iode
-    (GAMMA_X * SIGMA_F * self._phi) + (LAMBDA_I * y[0]) - (SIGMA_X * y[1] * self._phi) - (LAMBDA_X * y[1]) # edo xénon
-  ])
 
 def compute_isotopes_abundance (xenon_ci, stop, title, modify_flow = False, day_of_flow_modification = None, next_flow = None):
   # default values
@@ -42,14 +38,6 @@ def stable_values ():
   X = ((GAMMA_X * SIGMA_F * phi) + (LAMBDA_I * I)) / ((SIGMA_X * phi) + (LAMBDA_X))
   print("Après 2 jours, pour un flux de 3e13 :")
   print('Iode:', '%.2E' % Decimal(I),' Xénon:', '%.2E' % Decimal(X))
-
-def neutrons_flow_edo (self, t, y):
-  # y = [I, X, PHI]
-  return np.array([
-    (GAMMA_I * SIGMA_F * y[2]) - (LAMBDA_I * y[0]) - (SIGMA_I * y[0] * y[2]), # edo iode
-    (GAMMA_X * SIGMA_F * y[2]) + (LAMBDA_I * y[0]) - (SIGMA_X * y[1] * y[2]) - (LAMBDA_X * y[1]), # edo xénon
-    ((y[2] / TAU) * k * (SIGMA_U - (SIGMA_X * y[1]) - self._sigma_b)) # edo flux de neutrons
-])
 
 def compute_neutrons_flow (xenon_start, stop, title):
   # default values
@@ -166,5 +154,5 @@ if __name__ == "__main__":
   if (start_answer == "Ligne de commande"):
     command_line()
   elif (start_answer == "GUI"):
-    pass
     # Lancer l'interface graphique
+    gui()

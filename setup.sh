@@ -1,4 +1,4 @@
 python3 -m venv env
 source env/bin/activate
 pip install --upgrade pip
-pip install matplotlib numpy PyInquirer
+pip install matplotlib numpy PyInquirer pandas
