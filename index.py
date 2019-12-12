@@ -49,42 +49,6 @@ def stable_values ():
 
 def neutrons_flow_edo (self, t, y):
   #print('Flux de neutrons:', '%.2E' % Decimal(y[2]))
-
-  # Si le flux est plus ou moins stabilisé
-  # On démarre un timer et on attend 24 heures
-  # Après cela, on baisse le flux à 1% de sa valeur stable
-  if (y[2] > STABLE_FLOW - 0.5E10 and y[2] < STABLE_FLOW + 0.5E10 and not self._timer_started):
-    self._timer_started = True
-    self._timer_start = t
-
-  if (self._timer_started and seconds_to_hour(t - self._timer_start) >= 24):
-    # Si le flux est plus bas que le flux stable
-    # et que sigma_b ne descend pas en dessous de la valeur minimale
-    # on diminue la section efficace des neutrons (sigma_b)
-    if (y[2] < FLOW_DROP and self._sigma_b > SIGMA_B_MIN):
-      self._sigma_b -= SIGMA_B_STEP
-    
-    # Si le flux est plus haut que le flux stable 
-    # et que sigma_b ne dépasse pas sa valeur maximale
-    # on diminue la section efficace des neutrons (sigma_b)
-    elif (y[2] > FLOW_DROP and self._sigma_b < SIGMA_B_MAX):
-      self._sigma_b += SIGMA_B_STEP
-
-  #if (y[2] > STABLE_FLOW - (1E10 / 1000)
-
-  # Si le flux est plus bas que le flux stable
-  # et que sigma_b ne descend pas en dessous de la valeur minimale
-  # on diminue la section efficace des neutrons (sigma_b)
-  if (y[2] < STABLE_FLOW and self._sigma_b > SIGMA_B_MIN):
-    self._sigma_b -= SIGMA_B_STEP
-  
-  # Si le flux est plus haut que le flux stable 
-  # et que sigma_b ne dépasse pas sa valeur maximale
-  # on diminue la section efficace des neutrons (sigma_b)
-  elif (y[2] > STABLE_FLOW and self._sigma_b < SIGMA_B_MAX):
-    self._sigma_b += SIGMA_B_STEP
-
-  self._sigma_b_set.append(self._sigma_b)
   
   # y = [I, X, PHI]
   return np.array([
