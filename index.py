@@ -12,17 +12,13 @@ from constants import (GAMMA_I, GAMMA_X, SIGMA_F, LAMBDA_I, LAMBDA_X, SIGMA_I, S
   PHI, TAU, k, SIGMA_U, SIGMA_B_MAX, SIGMA_B_MIN, SIGMA_B_STEP, STABLE_FLOW, FLOW_START, FLOW_DROP)
 
 def isotopes_abundance_edo (self, t, y):
-  # après 3 jours
-  if (self._modify_flow and t >= day_to_seconds(self._day_of_modification)): 
-    self._phi = self._next_flow
-
   # y = [I, X]
   return np.array([
     (GAMMA_I * SIGMA_F * self._phi) - (LAMBDA_I * y[0]) - (SIGMA_I * y[0] * self._phi), # edo iode
     (GAMMA_X * SIGMA_F * self._phi) + (LAMBDA_I * y[0]) - (SIGMA_X * y[1] * self._phi) - (LAMBDA_X * y[1]) # edo xénon
   ])
 
-def compute_isotopes_abundance (xenon_ci, stop, title, modify_flow = False, day_of_modification = None, next_flow = None):
+def compute_isotopes_abundance (xenon_ci, stop, title, modify_flow = False, day_of_flow_modification = None, next_flow = None):
   # default values
   T0 = 0
   TIME_INTERVAL = 10 # 10s
@@ -34,7 +30,7 @@ def compute_isotopes_abundance (xenon_ci, stop, title, modify_flow = False, day_
   y_label = "Abondance"
   legends = ['Iode', 'Xénon']
 
-  isotope_abundance_rk4 = IsotopesAbundance(title, y_label, x_label, legends, isotopes_abundance_edo, T0, ISOTOPES_CI, TIME_INTERVAL, STOP)
+  isotope_abundance_rk4 = IsotopesAbundance(title, y_label, x_label, legends, isotopes_abundance_edo, T0, ISOTOPES_CI, TIME_INTERVAL, STOP, modify_flow, day_of_flow_modification, next_flow)
   isotope_abundance_rk4.resolve()
   isotope_abundance_rk4.graph()
 
@@ -48,44 +44,6 @@ def stable_values ():
   print('Iode:', '%.2E' % Decimal(I),' Xénon:', '%.2E' % Decimal(X))
 
 def neutrons_flow_edo (self, t, y):
-  #print('Flux de neutrons:', '%.2E' % Decimal(y[2]))
-
-  # Si le flux est plus ou moins stabilisé
-  # On démarre un timer et on attend 24 heures
-  # Après cela, on baisse le flux à 1% de sa valeur stable
-  if (y[2] > STABLE_FLOW - 0.5E10 and y[2] < STABLE_FLOW + 0.5E10 and not self._timer_started):
-    self._timer_started = True
-    self._timer_start = t
-
-  if (self._timer_started and seconds_to_hour(t - self._timer_start) >= 24):
-    # Si le flux est plus bas que le flux stable
-    # et que sigma_b ne descend pas en dessous de la valeur minimale
-    # on diminue la section efficace des neutrons (sigma_b)
-    if (y[2] < FLOW_DROP and self._sigma_b > SIGMA_B_MIN):
-      self._sigma_b -= SIGMA_B_STEP
-    
-    # Si le flux est plus haut que le flux stable 
-    # et que sigma_b ne dépasse pas sa valeur maximale
-    # on diminue la section efficace des neutrons (sigma_b)
-    elif (y[2] > FLOW_DROP and self._sigma_b < SIGMA_B_MAX):
-      self._sigma_b += SIGMA_B_STEP
-
-  #if (y[2] > STABLE_FLOW - (1E10 / 1000)
-
-  # Si le flux est plus bas que le flux stable
-  # et que sigma_b ne descend pas en dessous de la valeur minimale
-  # on diminue la section efficace des neutrons (sigma_b)
-  if (y[2] < STABLE_FLOW and self._sigma_b > SIGMA_B_MIN):
-    self._sigma_b -= SIGMA_B_STEP
-  
-  # Si le flux est plus haut que le flux stable 
-  # et que sigma_b ne dépasse pas sa valeur maximale
-  # on diminue la section efficace des neutrons (sigma_b)
-  elif (y[2] > STABLE_FLOW and self._sigma_b < SIGMA_B_MAX):
-    self._sigma_b += SIGMA_B_STEP
-
-  self._sigma_b_set.append(self._sigma_b)
-  
   # y = [I, X, PHI]
   return np.array([
     (GAMMA_I * SIGMA_F * y[2]) - (LAMBDA_I * y[0]) - (SIGMA_I * y[0] * y[2]), # edo iode
@@ -184,7 +142,7 @@ def abundance_category ():
       stop=day_to_seconds(5), 
       title="Abondance d'iode et de xénon entre 0 et 5 jours, Xénon au départ : 2e15, Flux = 0 après 3 jours",
       modify_flow=True,
-      day_of_modification=3,
+      day_of_flow_modification=3,
       next_flow=0
     )
     return

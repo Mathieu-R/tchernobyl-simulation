@@ -43,3 +43,6 @@ STABLE_FLOW = 1E15
 
 # Drop du flux à 1% de sa valeur stable
 FLOW_DROP = STABLE_FLOW / 100
+
+# Pas de temps pour l'évaluation des EDO
+TIME_INTERVAL = 86400 # 1h
