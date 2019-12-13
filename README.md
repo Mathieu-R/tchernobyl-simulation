@@ -19,12 +19,3 @@ $ ./start.sh
 
 > Mouvement des barres de contrôles lors de la simulation précédente
 ![barres de contrôle](/figures/control_bars_movement.png?raw=true)
-
-### troubleshooting
-En cas de difficulté avec l'installation des packages, il peut être utile d'aliaser pip 
-```
-$ sudo vim ~/.bashrc # où .zshrc
-# ajouter alias pip=pip3 à la fin de ce fichier
-# ajouter eval "$(pyenv init -)" à la fin de ce fichier
-$ source ~/.zshrc 
-```

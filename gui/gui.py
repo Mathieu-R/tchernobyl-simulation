@@ -10,11 +10,9 @@ matplotlib.use("TkAgg")
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-from pandas import DataFrame
 
 from edo_solver.edo import neutrons_flow_edo 
 from edo_solver.neutrons_flow import NeutronsFlow
-
 from edo_solver.plot_animation import PlotAnimation
 from utils import day_to_seconds, hour_to_seconds
 from constants import FLOW_START, TIME_INTERVAL
