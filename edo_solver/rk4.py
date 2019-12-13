@@ -13,7 +13,6 @@ class RK4Method(EDONumericalResolution):
 
   def resolve(self):
     y = np.array(self._ci) # [I(0), X(0), PHI(0)]
-
     self._time_set.append(self.second_to_hour(self._t0)) 
     self._y_set.append(y.copy())
 

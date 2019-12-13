@@ -29,8 +29,8 @@ class EDONumericalResolution:
     plt.title(title)
     # https://stackoverflow.com/questions/44632571/pyplot-legend-only-displaying-one-letter?noredirect=1&lq=1
     plt.legend(edo_legends, loc="upper right")
-    plt.xlabel(self._x_label)
-    plt.ylabel(self._y_label)
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
     plt.yscale('log')
     #plt.grid(True,which="both").
     plt.show()
