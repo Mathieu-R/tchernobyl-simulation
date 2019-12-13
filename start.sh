@@ -1,2 +1,2 @@
 pyenv local env
-python3 index.py
+python3.7 index.py

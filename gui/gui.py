@@ -12,6 +12,9 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from pandas import DataFrame
 
+from edo_solver.edo import neutrons_flow_edo 
+from edo_solver.neutrons_flow import NeutronsFlow
+
 from edo_solver.plot_animation import PlotAnimation
 from utils import day_to_seconds, hour_to_seconds
 from constants import FLOW_START, TIME_INTERVAL
@@ -32,9 +35,9 @@ class GraphicInterface():
     quit_button.grid(row=0, column=2)
 
     # (à placer dans le canvas) contiendra le graph 
-    self._figure = Figure(figsize=(8, 6), dpi=100)
+    self._figure = Figure(figsize=(12, 7), dpi=100)
     # Axes
-    self._axes = self._figure.add_subplot(1, 1, 1)
+    self._axes = self._figure.add_subplot(111)
     # Line2D
     self._line, = self._axes.plot([], [], lw=1)
 
@@ -49,23 +52,36 @@ class GraphicInterface():
 
     # canvas (afin de dessiner le graph dans tkinter)
     self._canvas = FigureCanvasTkAgg(self._figure, self._root)
-    self._canvas.draw()
+    #self._canvas.draw()
     self._canvas.get_tk_widget().grid(row=1, column=0)
 
     # Indique si la simulation est lancée
     self._started = False
+
+    # edo simulation
+    self._simulation = None
     
     self._root.mainloop()
 
   def plot_neutrons_flow(self):
     # Lancement de la simulation
-    if not self._started:
+    if not self._started:   
       FLOW_CI = [1.0, 2e15, FLOW_START] # [I(T_0), X(T_0), PHI[T_0]]
+
+      self._simulation = NeutronsFlow(
+        edo=neutrons_flow_edo, 
+        t0=0,
+        ci=FLOW_CI,
+        time_interval=10,
+        stop=hour_to_seconds(100)
+      )
+
       animation = PlotAnimation(
-        10, 
-        3600, 
-        FLOW_CI, 
-        hour_to_seconds(100),
+        time_interval=10, 
+        time_refresh=3600, 
+        ci=FLOW_CI, 
+        simulation_time=hour_to_seconds(100),
+        simulation=self._simulation,
         tk_root = self._root,
         mpl_figure = self._figure,
         mpl_axes = self._axes,
@@ -85,21 +101,24 @@ class GraphicInterface():
       text="Commandes pour le graphe du flux de neutron",
       font=("Helvetica", 15)
     )
-    title.pack()
+    title.grid()
 
-    subtitle = tk.Label(flow_control_bars, text="Choisir valeur des barres de ralentissement")
-    subtitle.pack()
+    subtitle = tk.Label(flow_control_bars, text="Valeur des barres de ralentissement")
+    subtitle.grid()
 
-    var = tk.DoubleVar()
-    scale = tk.Scale(flow_control_bars, variable=var, from_=0.2, to=0.1, resolution = 0.0001, length=200)
-    scale.pack()
-
-    stop_simulation_button = tk.Button(
+    scale = tk.Scale(
       flow_control_bars, 
-      text="Arrêter la simulation", 
-      command=self.on_stop_simulation_button_click
+      variable=var, 
+      from_=0.2, 
+      to=0.1, 
+      resolution = 0.0001, 
+      length=200,
+      command=self.update_bars
     )
-    stop_simulation_button.pack()
+    scale.grid()
+
+  def update_bars(self, sigma_b):
+    self._simulation.set_sigma_b(sigma_b)
 
   def quit(self):
     self._root.quit()

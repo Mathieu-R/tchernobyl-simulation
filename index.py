@@ -51,9 +51,9 @@ def compute_neutrons_flow (xenon_start, stop, title):
   y_label = "Abondance"
   legends = ['Iode', 'Xénon', 'Flux de neutrons']
 
-  isotope_abundance_rk4 = NeutronsFlow(title, y_label, x_label, legends, neutrons_flow_edo, T0, FLOW_CI, TIME_INTERVAL, STOP)
+  isotope_abundance_rk4 = NeutronsFlow(neutrons_flow_edo, T0, FLOW_CI, TIME_INTERVAL, STOP)
   isotope_abundance_rk4.resolve()
-  isotope_abundance_rk4.graph()
+  isotope_abundance_rk4.graph(title, legends, x_label, y_label)
   isotope_abundance_rk4.graph_sigma_b()
 
 def command_line ():
