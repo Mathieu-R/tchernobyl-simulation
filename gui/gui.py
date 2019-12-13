@@ -37,10 +37,10 @@ class GraphicInterface():
     self._x_label = "temps (h)",
     self._y_label = "Flux / Abondance",
 
-    plt.legend(self._edo_legends, loc="upper right")
-    plt.xlabel(self._x_label)
-    plt.ylabel(self._y_label)
-    plt.yscale('log')
+    self._plot.legend(self._edo_legends, loc="upper right")
+    self._plot.set_xlabel(self._x_label)
+    self._plot.set_ylabel(self._y_label)
+    self._plot.set_yscale('log')
 
     # canvas (afin de dessiner le graph dans tkinter)
     self._canvas = FigureCanvasTkAgg(self._figure, self._root)
