@@ -6,7 +6,7 @@ from edo_solver.neutrons_flow import NeutronsFlow
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 class PlotAnimation():
-  def __init__(self, time_interval, time_refresh, ci, simulation_time, tk_root, mpl_figure):
+  def __init__(self, time_interval, time_refresh, ci, simulation_time, tk_root, mpl_figure, mpl_axes, line):
     # début de l'évaluation de l'edo
     self._t0 = 0
     # temps actuel de la simulation
@@ -22,12 +22,17 @@ class PlotAnimation():
     self._simulation_time = simulation_time
     # conditions initiales (pour chaque loop)
     self._ci = ci
+    
+    self._tk_root = tk_root
+    self._mpl_figure = mpl_figure
+    self._mpl_axes = mpl_axes
+    self._line = line
 
   def init_background(self):
     self._line.set_data([], [])
-    return self._line
+    return self._line,
 
-  def update(self):
+  def update(self, interval):
     print("loop")
     # lance une boucle
     # résolution des edo
@@ -38,7 +43,9 @@ class PlotAnimation():
     y_set = self._simulation.get_y_set()
 
     # plot les données
-    self._line.set_data(time_set, y_set)
+    #self._line.set_data(time_set, y_set)
+    self._mpl_axes.clear()
+    self._mpl_axes.plot(time_set, y_set)
 
     # change les données pour la prochaine loop
     self._simulation.set_ci(y_set[len(y_set) - 1])
@@ -49,7 +56,7 @@ class PlotAnimation():
     self._stop += self._stop
     self._simulation.set_stop(self._stop)
 
-    return self._line
+    return self._line,
 
   def animate(self):
     print("animate")
@@ -62,7 +69,7 @@ class PlotAnimation():
     )
     
     animation.FuncAnimation(
-      self._fig, 
+      self._mpl_figure, 
       self.update, 
       init_func=self.init_background, 
       frames=200, 
