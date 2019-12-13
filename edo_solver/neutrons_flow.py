@@ -4,13 +4,13 @@ from utils import seconds_to_hour
 from decimal import Decimal
 
 class NeutronsFlow(RK4Method):
-  def __init__(self, title, y_label, x_label, edo_legends, edo, t0, ci, time_interval, stop):
+  def __init__(self, edo, t0, ci, time_interval, stop):
     # barres de contrôle
     self._sigma_b = SIGMA_B_MIN
     self._timer_started = False
     self._timer_start = 0
     self._sigma_b_set = [SIGMA_B_MIN]
-    super().__init__(title, y_label, x_label, edo_legends, edo, t0, ci, time_interval, stop)
+    super().__init__(edo, t0, ci, time_interval, stop)
 
   # y[0] : abondance d'iode
   # y[1] : abondance de xénon
