@@ -8,7 +8,7 @@ from edo_solver.neutrons_flow import NeutronsFlow
 from edo_solver.isotopes_abundance import IsotopesAbundance
 from edo_solver.edo import isotopes_abundance_edo, neutrons_flow_edo
 from PyInquirer import prompt, print_json
-from gui.gui import gui
+from gui.gui import GraphicInterface
 
 from utils import day_to_seconds, seconds_to_hour
 from constants import (GAMMA_I, GAMMA_X, SIGMA_F, LAMBDA_I, LAMBDA_X, SIGMA_I, SIGMA_X, 
@@ -155,4 +155,4 @@ if __name__ == "__main__":
     command_line()
   elif (start_answer == "GUI"):
     # Lancer l'interface graphique
-    gui()
+    GraphicInterface()

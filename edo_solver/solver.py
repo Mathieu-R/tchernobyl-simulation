@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class EDONumericalResolution:
-  def __init__(self, title, y_label, x_label, edo_legends, edo, t0, ci, time_interval, stop):
+  def __init__(self, edo, t0, ci, time_interval, stop):
     # function that return [y' = CI, y'' = EDO] as a matrix
     self._edo = edo
     self._t0 = t0
@@ -16,30 +16,19 @@ class EDONumericalResolution:
     self._y_set = []
 
     # graph
-    self._title = title
-    self._x_label = x_label
-    self._y_label = y_label
-    self._edo_legends = edo_legends
+    # self._title = title
+    # self._x_label = x_label
+    # self._y_label = y_label
+    # self._edo_legends = edo_legends
 
   def resolve(self):
     raise NotImplemented
 
-  def graph_in_real_time(self):
+  def graph(self, title, edo_legends, x_label, y_label): 
     plt.plot(self._time_set, self._y_set)
-    plt.title(self._title)
+    plt.title(title)
     # https://stackoverflow.com/questions/44632571/pyplot-legend-only-displaying-one-letter?noredirect=1&lq=1
-    plt.legend(self._edo_legends, loc="upper right")
-    plt.xlabel(self._x_label)
-    plt.ylabel(self._y_label)
-    plt.yscale('log')
-    #plt.grid(True,which="both").
-    plt.show()
-
-  def graph(self): 
-    plt.plot(self._time_set, self._y_set)
-    plt.title(self._title)
-    # https://stackoverflow.com/questions/44632571/pyplot-legend-only-displaying-one-letter?noredirect=1&lq=1
-    plt.legend(self._edo_legends, loc="upper right")
+    plt.legend(edo_legends, loc="upper right")
     plt.xlabel(self._x_label)
     plt.ylabel(self._y_label)
     plt.yscale('log')
@@ -55,3 +44,21 @@ class EDONumericalResolution:
     plt.ylabel("Sigma B")
     #plt.grid(True,which="both").
     plt.show()
+
+  def set_t0(self, t0):
+    self._t0 = t0
+
+  def set_ci(self, ci):
+    self._ci = ci 
+
+  def set_time_interval(self, time_interval):
+    self._time_interval = time_interval
+
+  def set_stop(self, stop):
+    self._stop = stop
+
+  def get_time_set(self):
+    return self._time_set
+
+  def get_y_set(self):
+    return self._y_set
