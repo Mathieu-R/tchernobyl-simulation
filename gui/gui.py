@@ -2,34 +2,48 @@ import tkinter as tk
 from ttkthemes import themed_tk
 from tkinter import ttk
 
+from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk
+
 from edo_solver.edo import neutrons_flow_edo 
 from edo_solver.neutrons_flow import NeutronsFlow
 from edo_solver.plot_animation import PlotAnimation
 from utils import day_to_seconds, hour_to_seconds
 from constants import FLOW_START, TIME_INTERVAL, TEXT_FONT
 
-class GraphicInterface(ttk.Frame):
+class GraphicInterface():
   def __init__(self):
-    # fenêtre principale
-    self._root = themed_tk.ThemedTk()
-    self._root.minsize(800, 600)
-    self._root.title("Simulation du réacteur d'une centrale nucléaire") 
+    root = themed_tk.ThemedTk()
+    root.minsize(800, 600)
+    root.title("Simulation du réacteur d'une centrale nucléaire") 
+    root.rowconfigure(0, weight=1)
+    root.columnconfigure(0, weight=1)
 
-    self._main_frame = ttk.Frame(self._root)
-    self._main_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+    main_frame = ttk.Frame(root)
+    main_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+    main_frame.rowconfigure(0, weight=1)
+    main_frame.columnconfigure(0, weight=1)
 
-    notebook = ttk.Notebook(self._main_frame)
+    # contain notebook
+    notebook_frame = ttk.Frame(main_frame, borderwidth=8)
+    notebook_frame.grid(row=0, column=0, sticky="nsew")
+    notebook_frame.rowconfigure(0, weight=1)
+    notebook_frame.columnconfigure(0, weight=1)
+
+    # contains plots
+    notebook = ttk.Notebook(notebook_frame)
     notebook.grid(row=0, column=0, sticky="nsew")
     notebook.rowconfigure(0, weight=1)
 
-    self._plot_frame = ttk.Frame(self._main_frame)
-    self._plot_frame.grid(row=0, column=0, sticky="nsew")
-    self._plot_frame.rowconfigure(0, weight=1)
-
-    notebook.add(self._plot_frame, text="Flux de neutrons")
+    # contain neutron flow plot + onglet
+    neutrons_flow_frame = ttk.Frame(notebook)
+    notebook.add(neutrons_flow_frame, text="Flux de neutrons")
 
     # instance plot class
-    PlotAnimation(tk_root=self._plot_frame)
+    neutrons_flow_plot = PlotAnimation(tk_root=neutron_flow_frame)
+
+    print(neutrons_flow_frame)
+    toolbar1 = NavigationToolbar2Tk(neutrons_flow_plot, neutrons_flow_frame)
+    toolbar1.update()
 
     self._parameters_frame = ttk.LabelFrame(self._main_frame, text="Paramètres")
     self._parameters_frame.grid(row=0, column=1, sticky="nsew")
@@ -124,12 +138,8 @@ class GraphicInterface(ttk.Frame):
       #   ci=FLOW_CI, 
       #   simulation_time=hour_to_seconds(stop),
       #   simulation=self._simulation,
-      #   tk_root = self._root,
-      #   mpl_figure = self._figure,
-      #   mpl_axes = self._axes,
-      #   line = self._line
       # )
-      # animation.animate()
+      animation.animate(self._simulation)
       self._started = True
 
   def on_stop_simulation_button_click (self):
