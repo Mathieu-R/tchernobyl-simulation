@@ -1,57 +1,95 @@
-import math
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import tkinter as tk
-#from ttkthemes import themed_tk
+from ttkthemes import themed_tk
 from tkinter import ttk
-
-matplotlib.use("TkAgg")
-
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.figure import Figure
 
 from edo_solver.edo import neutrons_flow_edo 
 from edo_solver.neutrons_flow import NeutronsFlow
 from edo_solver.plot_animation import PlotAnimation
 from utils import day_to_seconds, hour_to_seconds
-from constants import FLOW_START, TIME_INTERVAL
+from constants import FLOW_START, TIME_INTERVAL, TEXT_FONT
 
-class GraphicInterface():
+class GraphicInterface(ttk.Frame):
   def __init__(self):
     # fenêtre principale
-    self._root = tk.Tk()
+    self._root = themed_tk.ThemedTk()
+    self._root.minsize(800, 600)
     self._root.title("Simulation du réacteur d'une centrale nucléaire") 
 
-    launch_simulation_button = tk.Button(self._root, text="Lancer la simulation", command=self.plot_neutrons_flow)
-    launch_simulation_button.grid(row=0, column=0)
+    self._main_frame = ttk.Frame(self._root)
+    self._main_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+
+    notebook = ttk.Notebook(self._main_frame)
+    notebook.grid(row=0, column=0, sticky="nsew")
+    notebook.rowconfigure(0, weight=1)
+
+    self._plot_frame = ttk.Frame(self._main_frame)
+    self._plot_frame.grid(row=0, column=0, sticky="nsew")
+    self._plot_frame.rowconfigure(0, weight=1)
+
+    notebook.add(self._plot_frame, text="Flux de neutrons")
+
+    # instance plot class
+    PlotAnimation(tk_root=self._plot_frame)
+
+    self._parameters_frame = ttk.LabelFrame(self._main_frame, text="Paramètres")
+    self._parameters_frame.grid(row=0, column=1, sticky="nsew")
+    self._parameters_frame.rowconfigure(0, weight=1)
+    self._parameters_frame.rowconfigure(1, weight=5)
+    self._parameters_frame.rowconfigure(2, weight=5)
+    self._parameters_frame.rowconfigure(3, weight=5)
+    self._parameters_frame.rowconfigure(4, weight=5)
+    self._parameters_frame.rowconfigure(5, weight=5)
+    self._parameters_frame.columnconfigure(0, weight=1)
+
+    self._field_I0 = tk.StringVar(value="1.0")
+    self._field_X0 = tk.StringVar(value="2e15")
+    self._field_flow0 = tk.StringVar(value=f"{FLOW_START}")
+    self._field_time_interval = tk.StringVar(value="10")
+    self._field_stop = tk.StringVar(value="100")
+
+    self._label_I0 = ttk.Label(self._parameters_frame, text="Iode initial")
+    self._entry_I0 = ttk.Entry(self._parameters_frame, textvariable=self._field_I0)
+
+    self._label_X0 = ttk.Label(self._parameters_frame, text="Xénon initial")
+    self._entry_X0 = ttk.Entry(self._parameters_frame, textvariable=self._field_X0)
+
+    self._label_flow0 = ttk.Label(self._parameters_frame, text="Flux initial")
+    self._entry_flow0 = ttk.Entry(self._parameters_frame, textvariable=self._field_flow0)
+
+    self._label_time_interval = ttk.Label(self._parameters_frame, text="Pas de temps (s)")
+    self._entry_time_interval = ttk.Entry(self._parameters_frame, textvariable=self._field_time_interval)
+
+    self._label_stop = ttk.Label(self._parameters_frame, text="Durée de la simulation (h)")
+    self._entry_stop = ttk.Entry(self._parameters_frame, textvariable=self._field_stop)
+
+    self._label_I0.grid(row=1, column=0, sticky='new')
+    self._label_X0.grid(row=1, column=0, sticky='ew')
+    self._label_flow0.grid(row=1, column=0, sticky='sew')
     
-    manage_control_bars_button = tk.Button(self._root, text="Gérer les barres de contrôle", command=self.control_bars)
-    manage_control_bars_button.grid(row=0, column=1)
+    self._label_time_interval.grid(row=2, column=0, sticky='new')
+    self._label_stop.grid(row=2, column=0, sticky='ew')
+    
+    self._entry_I0.grid(row=1, column=1, sticky='new')
+    self._entry_X0.grid(row=1, column=1, sticky='ew')
+    self._entry_flow0.grid(row=1, column=1, sticky='sew')
 
-    quit_button = tk.Button(self._root, text="Quit", command=self.quit)
-    quit_button.grid(row=0, column=2)
+    self._entry_time_interval.grid(row=2, column=1, sticky='new')
+    self._entry_stop.grid(row=2, column=1, sticky='ew')
 
-    # (à placer dans le canvas) contiendra le graph 
-    self._figure = Figure(figsize=(12, 7), dpi=100)
-    # Axes
-    self._axes = self._figure.add_subplot(111)
-    # Line2D
-    self._line, = self._axes.plot([], [], lw=1)
+    launch_simulation_button = ttk.Button(self._parameters_frame, text="Lancer la simulation", command=self.plot_neutrons_flow)
+    launch_simulation_button.grid(row=4, column=0, columnspan=2, sticky="new")
+    
+    manage_control_bars_button = ttk.Button(self._parameters_frame, text="Gérer les barres de contrôle", command=self.control_bars)
+    manage_control_bars_button.grid(row=4, column=0, columnspan=2, sticky="ew")
 
-    self._edo_legends = ['Iode', 'Xénon', 'Flux de neutrons'],
-    self._x_label = "temps (h)",
-    self._y_label = "Flux / Abondance",
+    quit_button = ttk.Button(self._parameters_frame, text="Quitter", command=self.quit)
+    quit_button.grid(row=4, column=0, columnspan=2, sticky="sew")
 
-    self._axes.legend(self._edo_legends, loc="upper right")
-    self._axes.set_xlabel(self._x_label)
-    self._axes.set_ylabel(self._y_label)
-    self._axes.set_yscale('log')
-
-    # canvas (afin de dessiner le graph dans tkinter)
-    self._canvas = FigureCanvasTkAgg(self._figure, self._root)
-    #self._canvas.draw()
-    self._canvas.get_tk_widget().grid(row=1, column=0)
+    # redimensionnement des boutons, textes
+    for child in self._parameters_frame.winfo_children():
+      if isinstance(child, ttk.Label):
+        child.config(font=TEXT_FONT)
+      child.grid_configure(padx=5, pady=5)
 
     # Indique si la simulation est lancée
     self._started = False
@@ -63,29 +101,35 @@ class GraphicInterface():
 
   def plot_neutrons_flow(self):
     # Lancement de la simulation
-    if not self._started:   
-      FLOW_CI = [1.0, 2e15, FLOW_START] # [I(T_0), X(T_0), PHI[T_0]]
+    if not self._started: 
+      I0 = float(self._field_I0.get())
+      X0 = float(self._field_X0.get())
+      flow0 = float(self._field_flow0.get())
+      time_interval = float(self._field_time_interval.get())
+      stop = int(self._field_stop.get())
+
+      FLOW_CI = [I0, X0, flow0] # [I(T_0), X(T_0), PHI[T_0]]
 
       self._simulation = NeutronsFlow(
         edo=neutrons_flow_edo, 
         t0=0,
         ci=FLOW_CI,
-        time_interval=10,
-        stop=hour_to_seconds(100)
+        time_interval=time_interval,
+        stop=hour_to_seconds(stop)
       )
 
-      animation = PlotAnimation(
-        time_interval=10, 
-        time_refresh=3600, 
-        ci=FLOW_CI, 
-        simulation_time=hour_to_seconds(100),
-        simulation=self._simulation,
-        tk_root = self._root,
-        mpl_figure = self._figure,
-        mpl_axes = self._axes,
-        line = self._line
-      )
-      animation.animate()
+      # animation = PlotAnimation(
+      #   time_interval=time_interval, 
+      #   time_refresh=3600, 
+      #   ci=FLOW_CI, 
+      #   simulation_time=hour_to_seconds(stop),
+      #   simulation=self._simulation,
+      #   tk_root = self._root,
+      #   mpl_figure = self._figure,
+      #   mpl_axes = self._axes,
+      #   line = self._line
+      # )
+      # animation.animate()
       self._started = True
 
   def on_stop_simulation_button_click (self):
@@ -121,3 +165,4 @@ class GraphicInterface():
   def quit(self):
     self._root.quit()
     self._root.destroy()
+

@@ -46,3 +46,6 @@ FLOW_DROP = STABLE_FLOW / 100
 
 # Pas de temps pour l'évaluation des EDO
 TIME_INTERVAL = 86400 # 1h
+
+# style et taille du texte pour la GUI
+TEXT_FONT = ('Helvetica', 11)
