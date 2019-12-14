@@ -39,13 +39,12 @@ class GraphicInterface():
     notebook.add(neutrons_flow_frame, text="Flux de neutrons")
 
     # instance plot class
-    neutrons_flow_plot = PlotAnimation(tk_root=neutron_flow_frame)
+    self._neutrons_flow_plot = PlotAnimation(tk_root=neutrons_flow_frame)
 
-    print(neutrons_flow_frame)
-    toolbar1 = NavigationToolbar2Tk(neutrons_flow_plot, neutrons_flow_frame)
+    toolbar1 = NavigationToolbar2Tk(self._neutrons_flow_plot, neutrons_flow_frame)
     toolbar1.update()
 
-    self._parameters_frame = ttk.LabelFrame(self._main_frame, text="Paramètres")
+    self._parameters_frame = ttk.LabelFrame(main_frame, text="Paramètres")
     self._parameters_frame.grid(row=0, column=1, sticky="nsew")
     self._parameters_frame.rowconfigure(0, weight=1)
     self._parameters_frame.rowconfigure(1, weight=5)
@@ -111,7 +110,7 @@ class GraphicInterface():
     # edo simulation
     self._simulation = None
     
-    self._root.mainloop()
+    root.mainloop()
 
   def plot_neutrons_flow(self):
     # Lancement de la simulation
@@ -132,14 +131,7 @@ class GraphicInterface():
         stop=hour_to_seconds(stop)
       )
 
-      # animation = PlotAnimation(
-      #   time_interval=time_interval, 
-      #   time_refresh=3600, 
-      #   ci=FLOW_CI, 
-      #   simulation_time=hour_to_seconds(stop),
-      #   simulation=self._simulation,
-      # )
-      animation.animate(self._simulation)
+      self._neutrons_flow_plot.animate(self._simulation)
       self._started = True
 
   def on_stop_simulation_button_click (self):
