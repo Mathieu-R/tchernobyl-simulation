@@ -59,5 +59,7 @@ class PlotAnimation(FigureCanvasTkAgg):
 
     plt.show()
 
+    return self._animation
+
     # self._edo_legends = ['Iode', 'Xénon', 'Flux de neutrons'],
     # self._axes.legend(self._edo_legends, loc="upper right")

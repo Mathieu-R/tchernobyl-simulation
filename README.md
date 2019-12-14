@@ -19,3 +19,6 @@ $ ./start.sh
 
 > Mouvement des barres de contrôles lors de la simulation précédente
 ![barres de contrôle](/figures/control_bars_movement.png?raw=true)
+
+> Interface Graphique
+![interface graphique](/figures/gui.png?raw=true)
