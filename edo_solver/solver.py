@@ -15,12 +15,6 @@ class EDONumericalResolution:
     self._time_set = []
     self._y_set = []
 
-    # graph
-    # self._title = title
-    # self._x_label = x_label
-    # self._y_label = y_label
-    # self._edo_legends = edo_legends
-
   def resolve(self):
     raise NotImplemented
 
@@ -32,7 +26,6 @@ class EDONumericalResolution:
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.yscale('log')
-    #plt.grid(True,which="both").
     plt.show()
 
   def graph_sigma_b(self):
@@ -42,20 +35,19 @@ class EDONumericalResolution:
     plt.legend(["Section efficace des neutrons avec les barres de contrôle"], loc="upper right")
     plt.xlabel(self._x_label)
     plt.ylabel("Sigma B")
-    #plt.grid(True,which="both").
     plt.show()
 
-  def set_t0(self, t0):
-    self._t0 = t0
+  # def set_t0(self, t0):
+  #   self._t0 = t0
 
-  def set_ci(self, ci):
-    self._ci = ci 
+  # def set_ci(self, ci):
+  #   self._ci = ci 
 
-  def set_time_interval(self, time_interval):
-    self._time_interval = time_interval
+  # def set_time_interval(self, time_interval):
+  #   self._time_interval = time_interval
 
-  def set_stop(self, stop):
-    self._stop = stop
+  # def set_stop(self, stop):
+  #   self._stop = stop
 
   def get_time_set(self):
     return self._time_set

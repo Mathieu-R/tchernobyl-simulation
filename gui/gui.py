@@ -115,6 +115,7 @@ class GraphicInterface():
   def plot_neutrons_flow(self):
     # Lancement de la simulation
     if not self._started: 
+      self._started = True
       I0 = float(self._field_I0.get())
       X0 = float(self._field_X0.get())
       flow0 = float(self._field_flow0.get())
@@ -130,36 +131,20 @@ class GraphicInterface():
         time_interval=time_interval,
         stop=hour_to_seconds(stop)
       )
+      self._simulation.resolve(gui_class=self)
 
-      self._neutrons_flow_plot.animate(self._simulation)
-      self._started = True
+      self._neutrons_flow_plot.animate(self._simulation, time_interval)
 
   def on_stop_simulation_button_click (self):
     self._paused = True
 
   def control_bars(self):
+    self.command_window = ttk.Toplevel(self.ROOT)
+    
+    self.scale = ttk.Scale(self.command_window, var=ttk.DoubleVar(), from_=0.2, to_=0.1, resolution=0.001, length=200, command=self.update_bars)
+    self.scale.grid()
+
     flow_control_bars = tk.Toplevel(self._root)
-
-    title = tk.Label(
-      flow_control_bars, 
-      text="Commandes pour le graphe du flux de neutron",
-      font=("Helvetica", 15)
-    )
-    title.grid()
-
-    subtitle = tk.Label(flow_control_bars, text="Valeur des barres de ralentissement")
-    subtitle.grid()
-
-    scale = tk.Scale(
-      flow_control_bars, 
-      variable=var, 
-      from_=0.2, 
-      to=0.1, 
-      resolution = 0.0001, 
-      length=200,
-      command=self.update_bars
-    )
-    scale.grid()
 
   def update_bars(self, sigma_b):
     self._simulation.set_sigma_b(sigma_b)

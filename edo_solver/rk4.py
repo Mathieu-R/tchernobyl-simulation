@@ -11,7 +11,8 @@ class RK4Method(EDONumericalResolution):
     k4 = self._edo(self, tn + self._time_interval, y + (self._time_interval * k3))
     return (k1 + 2*k2 + 2*k3 + k4)
 
-  def resolve(self):
+  def resolve(self, gui_class = None):
+    print("resolving...")
     y = np.array(self._ci) # [I(0), X(0), PHI(0)]
     self._time_set.append(self.second_to_hour(self._t0)) 
     self._y_set.append(y.copy())
@@ -32,6 +33,9 @@ class RK4Method(EDONumericalResolution):
       self._y_set.append(y.copy())
     
     self._y_set = np.array(self._y_set)
+
+    # indique à la gui que la simulation est terminée
+    gui_class._started = False
 
   def second_to_hour (self, seconds):
     hours = seconds / 3600

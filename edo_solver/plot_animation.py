@@ -10,8 +10,8 @@ from matplotlib import style
 matplotlib.use("TkAgg")
 style.use('seaborn-whitegrid')
 
-PLOT_TIME_REFRESH = 1000 # 1s
-DATA_TIME_REFRESH = 86400 # 1h
+PLOT_TIME_REFRESH = 1000 # 1000ms = 1s
+DATA_TIME_REFRESH = 3600 # 3600s = 1h
 
 class PlotAnimation(FigureCanvasTkAgg):
   def __init__(self, tk_root):
@@ -19,26 +19,45 @@ class PlotAnimation(FigureCanvasTkAgg):
     # lie le plot à la frame tkinter
     super().__init__(self._figure, tk_root)
 
-    x_label = "Temps (h)"
-    y_label = "Flux / Abondance"
+    self._x_label = "Temps (h)"
+    self._y_label = "Flux / Abondance"
 
-    self._axes = self._figure.add_subplot(111, xlabel=x_label, ylabel=y_label, yscale="log")
+    self._edo_legends = ['Iode', 'Xénon', 'Flux de neutrons'],
+
+    self._axes = self._figure.add_subplot(111, xlabel=self._x_label, ylabel=self._y_label, yscale="log")
     self.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
-    self._animation = None
+    # https://github.com/matplotlib/matplotlib/issues/1656
+    self._animation = animation.FuncAnimation(
+      self._figure, 
+      self.update,
+      interval=PLOT_TIME_REFRESH
+    )
+
+    self._simulation = None
+
+    plt.show()
 
   def update(self, interval):
-    print("loop")
-    # récupère les données
-    time_set = self._simulation.get_time_set()
-    y_set = self._simulation.get_y_set()
+    # si aucune simulation ne tourne, 
+    # stop la mise à jour du plot
+    if not self._simulation:
+      return
 
-    # La méthode update n'est pas lancée par animate
-    print(y_set, time_set)
+    self._end_slice = int(self._start_slice + (DATA_TIME_REFRESH / self._time_interval))
+
+    # récupère les données
+    time_set = self._simulation.get_time_set()[:self._end_slice]
+    y_set = self._simulation.get_y_set()[:self._end_slice]
 
     self._axes.clear()
     self._axes.plot(time_set, y_set, visible=True, linewidth=1)
-    self._axes.legend(fancybox=True)
+
+    # reset stuff
+    self._axes.set_xlabel(self._x_label)
+    self._axes.set_ylabel(self._y_label)
+    self._axes.set_yscale("log")
+    self._axes.legend(self._edo_legends, loc="upper right")
 
     self._axes.relim()
     self._axes.autoscale_view()
@@ -46,20 +65,9 @@ class PlotAnimation(FigureCanvasTkAgg):
     # redraw canvas
     self.draw_idle()
 
-  def animate(self, simulation):
-    print("animate")
+    self._start_slice += (DATA_TIME_REFRESH / self._time_interval)
+
+  def animate(self, simulation, time_interval):
     self._simulation = simulation
-    
-    # https://github.com/matplotlib/matplotlib/issues/1656
-    self._animation = animation.FuncAnimation(
-      self._figure, 
-      self.update,
-      interval=1000
-    )
-
-    plt.show()
-
-    return self._animation
-
-    # self._edo_legends = ['Iode', 'Xénon', 'Flux de neutrons'],
-    # self._axes.legend(self._edo_legends, loc="upper right")
+    self._time_interval = time_interval
+    self._start_slice = 0
