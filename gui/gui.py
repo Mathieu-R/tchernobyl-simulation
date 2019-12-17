@@ -131,7 +131,7 @@ class GraphicInterface():
         time_interval=time_interval,
         stop=hour_to_seconds(stop)
       )
-      self._simulation.resolve(gui_class=self)
+      #self._simulation.resolve(gui_class=self)
 
       self._neutrons_flow_plot.animate(self._simulation, time_interval)
 

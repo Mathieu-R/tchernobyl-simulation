@@ -4,8 +4,11 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg 
+from matplotlib.widgets import Slider
 from matplotlib.figure import Figure
 from matplotlib import style
+
+from constants import SIGMA_B_MIN
 
 matplotlib.use("TkAgg")
 style.use('seaborn-whitegrid')
@@ -34,7 +37,12 @@ class PlotAnimation(FigureCanvasTkAgg):
       interval=PLOT_TIME_REFRESH
     )
 
+    axcolor = 'lightgoldenrodyellow'
+    axfreq = plt.axes([0.25, 0.1, 0.65, 0.03], facecolor=axcolor)
+    self._slider = Slider(axfreq, 'Barres de contrôles', 0.1, 30.0, valinit=SIGMA_B_MIN)
+
     self._simulation = None
+    self._slider = None
 
     plt.show()
 
@@ -44,7 +52,13 @@ class PlotAnimation(FigureCanvasTkAgg):
     if not self._simulation:
       return
 
-    self._end_slice = int(self._start_slice + (DATA_TIME_REFRESH / self._time_interval))
+    #self._end_slice = int(self._start_slice + (DATA_TIME_REFRESH / self._time_interval))
+
+    # lis la valeur de sigma_b sur le slider
+    sigma_b = self._slider.val
+
+    # simule les EDO sur la sous-intervalle (1h par exemple)
+    self._simulation.resolve()
 
     # récupère les données
     time_set = self._simulation.get_time_set()[:self._end_slice]
@@ -65,9 +79,10 @@ class PlotAnimation(FigureCanvasTkAgg):
     # redraw canvas
     self.draw_idle()
 
-    self._start_slice += (DATA_TIME_REFRESH / self._time_interval)
+    #self._start_slice += (DATA_TIME_REFRESH / self._time_interval)
 
-  def animate(self, simulation, time_interval):
+  def animate(self, simulation, time_interval, slider):
     self._simulation = simulation
+    self._slider = slider
     self._time_interval = time_interval
     self._start_slice = 0
