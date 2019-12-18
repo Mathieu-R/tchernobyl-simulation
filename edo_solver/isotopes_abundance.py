@@ -1,23 +1,23 @@
 from .rk4 import RK4Method
-from constants import PHI
 from utils import day_to_seconds
+from constants import PHI
 
 class IsotopesAbundance(RK4Method):
-  def __init__(self, title, y_label, x_label, edo_legends, edo, t0, ci, time_interval, stop, modify_flow=False, day_of_flow_modification=None, next_flow=None):
-    self._modify_flow = modify_flow
-    self._day_of_flow_modification = day_of_flow_modification
-    self._next_flow = next_flow
-    self._phi = PHI
+  def __init__(self, edo, ci, full_time_range, time_step, modify_flow, day_of_flow_modification, next_flow):
+    self.modify_flow = modify_flow
+    self.day_of_flow_modification = day_of_flow_modification
+    self.next_flow = next_flow
+    self.phi = PHI
 
-    super().__init__(title, y_label, x_label, edo_legends, edo, t0, ci, time_interval, stop)
+    super().__init__(edo, ci, full_time_range, time_step)
 
   def derivatives(self, tn, y):
     # après 3 jours
-    if (self._modify_flow and tn >= day_to_seconds(self._day_of_flow_modification)): 
-      self._phi = self._next_flow
+    if (self.modify_flow and tn >= day_to_seconds(self.day_of_flow_modification)): 
+      self.phi = self.next_flow
 
-    k1 = self._edo(self, tn, y)
-    k2 = self._edo(self, tn + (self._time_interval / 2), y + ((self._time_interval / 2) * k1))
-    k3 = self._edo(self, tn + (self._time_interval / 2), y + ((self._time_interval / 2) * k2))
-    k4 = self._edo(self, tn + self._time_interval, y + (self._time_interval * k3))
+    k1 = self.edo(self, tn, y)
+    k2 = self.edo(self, tn + (self.time_step / 2), y + ((self.time_step / 2) * k1))
+    k3 = self.edo(self, tn + (self.time_step / 2), y + ((self.time_step / 2) * k2))
+    k4 = self.edo(self, tn + self.time_step, y + (self.time_step * k3))
     return (k1 + 2*k2 + 2*k3 + k4)
