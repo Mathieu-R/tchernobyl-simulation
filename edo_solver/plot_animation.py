@@ -30,37 +30,29 @@ class PlotAnimation(FigureCanvasTkAgg):
     self.edo_legends = ['Iode', 'Xénon', 'Flux de neutrons'],
 
     self.axes = self.figure.add_subplot(111, xlabel=self.x_label, ylabel=self.y_label, yscale="log")
-    self.figure.subplots_adjust(bottom=0.25)
 
     # données
     self.iodine, = self.axes.plot([], [], color="royalblue", lw=1)
     self.xenon, = self.axes.plot([], [], color="orange", lw=1)
     self.neutrons_flow, = self.axes.plot([], [], color="green", lw=1)
 
-    # # https://github.com/matplotlib/matplotlib/issues/1656
-    # self.animation = animation.FuncAnimation(
-    #   self.figure, 
-    #   self.update,
-    #   interval=PLOT_TIME_REFRESH
-    # )
-
-    # slider
-    axcolor = 'black'
-    self.axfreq = self.figure.add_axes([0.25, 0.1, 0.65, 0.03], facecolor=axcolor)
-    self.slider = Slider(self.axfreq, 'Barres de contrôles', SIGMA_B_MIN, SIGMA_B_MAX, valinit=SIGMA_B_MIN)
-    self.slider.on_changed(self.update_sigma_b)
-    print(self.slider)
-
     self.simulation = None
-    self.slider = None
 
     plt.show()
-
-  def update_sigma_b(self, sigma_b):
+  
+  def toggle(self, pause):
     if not self.simulation:
       return
-
-    self.simulation.sigma_b = sigma_b
+    
+    if pause:
+      self.animation.event_source.stop()
+    
+    if not pause:
+      self.animation.event_source.start()
+  
+  def stop(self):
+    self.animation.event_source.stop()
+    self.init()
 
   def init(self):
     # reset
@@ -70,15 +62,14 @@ class PlotAnimation(FigureCanvasTkAgg):
     return self.iodine, self.xenon, self.neutrons_flow,
 
   def update(self, i):
-    print(self.slider)
     print(i)
     # si aucune simulation ne tourne, 
     # stop la mise à jour du plot
-    if not self.simulation:
-      return
+    # if not self.simulation:
+    #   return
 
-    # lis la valeur de sigma_b sur le slider
-    #sigma_b = self.slider.val
+    if (i > self.time_end):
+      return
 
     time_step = self.simulation.time_step
 
@@ -129,6 +120,7 @@ class PlotAnimation(FigureCanvasTkAgg):
 
   def animate(self, simulation, time_end):
     self.simulation = simulation
+    self.time_end = time_end
 
     # https://github.com/matplotlib/matplotlib/issues/1656
     self.animation = animation.FuncAnimation(

@@ -9,7 +9,7 @@ from edo_solver.edo import neutrons_flow_edo
 from edo_solver.neutrons_flow import NeutronsFlow
 from edo_solver.plot_animation import PlotAnimation
 from utils import day_to_seconds, hour_to_seconds
-from constants import FLOW_START, TIME_INTERVAL, TEXT_FONT
+from constants import FLOW_START, TIME_INTERVAL, TEXT_FONT, SIGMA_B_MIN, SIGMA_B_MAX, SIGMA_B_STEP
 
 class GraphicInterface():
   def __init__(self):
@@ -90,14 +90,17 @@ class GraphicInterface():
     entry_time_interval.grid(row=2, column=1, sticky='new')
     entry_stop.grid(row=2, column=1, sticky='ew')
 
-    launch_simulation_button = ttk.Button(parameters_frame, text="Lancer la simulation", command=self.plot_neutrons_flow)
-    launch_simulation_button.grid(row=4, column=0, columnspan=2, sticky="new")
+    self.start_button = ttk.Button(parameters_frame, text="Démarrer la simulation", command=self.toggle_start_stop)
+    self.start_button.grid(row=4, column=0, columnspan=2, sticky="new")
+
+    self.pause_button = ttk.Button(parameters_frame, text="Pause", state="disabled", command=self.toggle_play_pause)
+    self.pause_button.grid(row=4, column=0, columnspan=2, sticky="ew")
     
-    manage_control_bars_button = ttk.Button(parameters_frame, text="Gérer les barres de contrôle", command=self.control_bars)
-    manage_control_bars_button.grid(row=4, column=0, columnspan=2, sticky="ew")
+    self.slider_control_bars = ttk.Scale(parameters_frame, var=tk.DoubleVar(), value=SIGMA_B_MIN, from_=SIGMA_B_MIN, to_=SIGMA_B_MAX, length=200, orient=tk.HORIZONTAL, command=self.update_sigma_b)
+    self.slider_control_bars.grid(row=4, column=0, columnspan=2, sticky="sew")
 
     quit_button = ttk.Button(parameters_frame, text="Quitter", command=self.quit)
-    quit_button.grid(row=4, column=0, columnspan=2, sticky="sew")
+    quit_button.grid(row=5, column=0, columnspan=2, sticky="new")
 
     # redimensionnement des boutons, textes
     for child in parameters_frame.winfo_children():
@@ -107,16 +110,20 @@ class GraphicInterface():
 
     # Indique si la simulation est lancée
     self.started = False
+    self.paused = False
 
     # edo simulation
     self.simulation = None
     
     self.root.mainloop()
 
-  def plot_neutrons_flow(self):
+  def toggle_start_stop(self):
     # Lancement de la simulation
     if not self.started: 
       self.started = True
+      self.start_button.config(text="Arrêter la simulation")
+      self.pause_button.config(state="normal")
+
       I0 = float(self.field_I0.get())
       X0 = float(self.field_X0.get())
       flow0 = float(self.field_flow0.get())
@@ -136,20 +143,28 @@ class GraphicInterface():
       )
 
       self.neutrons_flow_plot.animate(self.simulation, time_end)
-
-  def on_stop_simulation_button_click (self):
-    self.paused = True
-
-  def control_bars(self):
-    command_window = ttk.Toplevel(self.root)
     
-    scale = ttk.Scale(self.command_window, var=ttk.DoubleVar(), from_=0.2, to_=0.1, resolution=0.001, length=200, command=self.update_bars)
-    scale.grid()
+    elif self.started:
+      self.started = False
+      self.start_button.config(text="Démarrer la simulation")
+      self.pause_button.config(state="disabled")
+      self.simulation.stop()
 
-    flow_control_bars = tk.Toplevel(self.root)
+  def toggle_play_pause(self):
+    if not self.paused:
+      self.paused = True
+      self.pause_button.config(text="Continuer")
+      self.neutrons_flow_plot.toggle(pause=True)
+    elif self.paused:
+      self.paused = False
+      self.pause_button.config(text="Pause")
+      self.neutrons_flow_plot.toggle(pause=False)
 
-  def update_bars(self, sigma_b):
-    self.simulation.sigma_b = sigma_b
+  def update_sigma_b(self, sigma_b):
+    if not self.simulation:
+      return
+
+    self.simulation.sigma_b = float(sigma_b)
 
   def quit(self):
     self.root.quit()
