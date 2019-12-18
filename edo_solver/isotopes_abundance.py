@@ -3,7 +3,7 @@ from utils import day_to_seconds
 from constants import PHI
 
 class IsotopesAbundance(RK4Method):
-  def __init__(self, edo, ci, full_time_range, time_step):
+  def __init__(self, edo, ci, full_time_range, time_step, modify_flow, day_of_flow_modification, next_flow):
     self.modify_flow = modify_flow
     self.day_of_flow_modification = day_of_flow_modification
     self.next_flow = next_flow

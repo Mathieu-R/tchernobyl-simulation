@@ -148,7 +148,7 @@ class GraphicInterface():
       self.started = False
       self.start_button.config(text="Démarrer la simulation")
       self.pause_button.config(state="disabled")
-      self.simulation.stop()
+      self.neutrons_flow_plot.stop()
 
   def toggle_play_pause(self):
     if not self.paused:

@@ -27,14 +27,15 @@ class PlotAnimation(FigureCanvasTkAgg):
 
     self.x_label = "Temps (h)"
     self.y_label = "Flux / Abondance"
-    self.edo_legends = ['Iode', 'Xénon', 'Flux de neutrons'],
 
     self.axes = self.figure.add_subplot(111, xlabel=self.x_label, ylabel=self.y_label, yscale="log")
 
     # données
-    self.iodine, = self.axes.plot([], [], color="royalblue", lw=1)
-    self.xenon, = self.axes.plot([], [], color="orange", lw=1)
-    self.neutrons_flow, = self.axes.plot([], [], color="green", lw=1)
+    self.iodine, = self.axes.plot([], [], color="royalblue", label="Iode", lw=1)
+    self.xenon, = self.axes.plot([], [], color="orange", label="Xénon", lw=1)
+    self.neutrons_flow, = self.axes.plot([], [], color="green", label="Flux de neutrons", lw=1)
+    
+    self.axes.legend()
 
     self.simulation = None
 
@@ -53,6 +54,8 @@ class PlotAnimation(FigureCanvasTkAgg):
   def stop(self):
     self.animation.event_source.stop()
     self.init()
+    # force le redessinage du plot
+    self.draw_idle()
 
   def init(self):
     # reset
@@ -104,12 +107,6 @@ class PlotAnimation(FigureCanvasTkAgg):
     self.xenon.set_data(time_set_in_hours, xenon)
     self.neutrons_flow.set_data(time_set_in_hours, neutrons_flow)
 
-    # reset stuff
-    # self.axes.set_xlabel(self.x_label)
-    # self.axes.set_ylabel(self.y_label)
-    # self.axes.set_yscale("log")
-    # self.axes.legend(self.edo_legends, loc="upper right")
-
     self.axes.relim()
     self.axes.autoscale_view()
 
@@ -121,6 +118,8 @@ class PlotAnimation(FigureCanvasTkAgg):
   def animate(self, simulation, time_end):
     self.simulation = simulation
     self.time_end = time_end
+
+    plt.xlim(0, time_end)
 
     # https://github.com/matplotlib/matplotlib/issues/1656
     self.animation = animation.FuncAnimation(

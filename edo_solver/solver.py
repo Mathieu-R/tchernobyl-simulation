@@ -21,12 +21,12 @@ class EDONumericalResolution:
     #self._time_set = np.zeros([len(full_time_range)])
     self.y_set = np.zeros([len(full_time_range), len(ci)])
 
-  def resolve(self, sub_interval = None):
+  def resolve(self, **kwargs):
     raise NotImplemented
 
   def graph(self, title, edo_legends, x_label, y_label):
-    full_time_range_in_hours = map(lambda t: seconds_to_hour(t), self.full_time_range)
-    plt.plot(self.full_time_range_in_hours, self.y_set)
+    full_time_range_in_hours = np.fromiter(map(lambda t: seconds_to_hour(t), self.full_time_range), dtype=np.float)
+    plt.plot(full_time_range_in_hours, self.y_set)
     plt.title(title)
     # https://stackoverflow.com/questions/44632571/pyplot-legend-only-displaying-one-letter?noredirect=1&lq=1
     plt.legend(edo_legends, loc="upper right")
@@ -35,11 +35,11 @@ class EDONumericalResolution:
     plt.yscale('log')
     plt.show()
 
-  def graph_sigma_b(self):
+  def graph_sigma_b(self, x_label):
     plt.plot(self.full_time_range, np.array(self.sigma_b_set))
     plt.title("Barres de contrôle")
     # https://stackoverflow.com/questions/44632571/pyplot-legend-only-displaying-one-letter?noredirect=1&lq=1
     plt.legend(["Section efficace des neutrons avec les barres de contrôle"], loc="upper right")
-    plt.xlabel(self.x_label)
+    plt.xlabel(x_label)
     plt.ylabel("Sigma B")
     plt.show()

@@ -12,7 +12,7 @@ class RK4Method(EDONumericalResolution):
     k4 = self.edo(self, tn + self.time_step, y + (self.time_step * k3))
     return (k1 + 2*k2 + 2*k3 + k4)
 
-  def resolve(self, sub_interval):
+  def resolve(self, **kwargs):
     """
     Résoud le système d'EDO sur un certain range de temps.
     Soit l'intervalle complète, soit une sous-intervalle.
@@ -20,8 +20,8 @@ class RK4Method(EDONumericalResolution):
     """
     print("resolving...")
 
-    if (sub_interval.any()):
-      time_range = sub_interval
+    if ("sub_interval" in kwargs):
+      time_range = kwargs.get("sub_interval")
     else:
       time_range = self.full_time_range
 
