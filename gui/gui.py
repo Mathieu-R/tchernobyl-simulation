@@ -123,7 +123,8 @@ class GraphicInterface():
       time_step = float(self.field_time_interval.get())
       time_end = hour_to_seconds(int(self.field_stop.get()))
 
-      full_time_range = np.arange(0, time_end, time_step)
+      # incrémente car la dernière valeur n'est pas prise en compte
+      full_time_range = np.arange(0, time_end + time_step, time_step)
 
       FLOW_CI = [I0, X0, flow0] # [I(T_0), X(T_0), PHI[T_0]]
 

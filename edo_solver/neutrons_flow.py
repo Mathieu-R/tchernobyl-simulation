@@ -16,7 +16,6 @@ class NeutronsFlow(RK4Method):
   # y[1] : abondance de xénon
   # y[2] : flux de neutrons
   def derivatives(self, tn, y):
-    print(y)
     # Si le flux est plus ou moins stabilisé
     # On démarre un timer et on attend 24 heures
     # Après cela, on baisse le flux à 1% de sa valeur stable

@@ -38,6 +38,7 @@ class RK4Method(EDONumericalResolution):
     # pour la première valeur de temps (t_initial)
     # car celle-ci correspond aux conditions initiales
     for t in time_range[1:]:
+      # 0, 1, 2, 3, ...
       index = int(t / self.time_step)
       # resolve each first order edo (e.g. position (x'), speed (v'))
       y += (self.time_step / 6) * self.derivatives(t, y)
