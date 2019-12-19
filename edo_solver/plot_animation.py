@@ -69,7 +69,6 @@ class PlotAnimation(FigureCanvasTkAgg):
 
   def update(self, i):
     print(i)
-    print(self.time_end)
 
     if (i > self.time_end):
       return
