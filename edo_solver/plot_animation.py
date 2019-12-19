@@ -13,7 +13,7 @@ from utils import seconds_to_hour
 from constants import SIGMA_B_MIN, SIGMA_B_MAX
 
 matplotlib.use("TkAgg")
-style.use('seaborn-whitegrid')
+#style.use('seaborn-whitegrid')
 
 PLOT_TIME_REFRESH = 1000 # 1000ms = 1s
 DATA_TIME_REFRESH = 3600 # 3600s = 1h
@@ -35,7 +35,7 @@ class PlotAnimation(FigureCanvasTkAgg):
     self.xenon, = self.axes.plot([], [], color="orange", label="Xénon", lw=1)
     self.neutrons_flow, = self.axes.plot([], [], color="green", label="Flux de neutrons", lw=1)
     
-    self.axes.legend()
+    self.axes.legend(loc="upper left", fancybox=True)
 
     self.simulation = None
 
@@ -52,6 +52,9 @@ class PlotAnimation(FigureCanvasTkAgg):
       self.animation.event_source.start()
   
   def stop(self):
+    if not self.animation:
+      return
+
     self.animation.event_source.stop()
     self.init()
     # force le redessinage du plot
@@ -66,10 +69,7 @@ class PlotAnimation(FigureCanvasTkAgg):
 
   def update(self, i):
     print(i)
-    # si aucune simulation ne tourne, 
-    # stop la mise à jour du plot
-    # if not self.simulation:
-    #   return
+    print(self.time_end)
 
     if (i > self.time_end):
       return
@@ -77,10 +77,10 @@ class PlotAnimation(FigureCanvasTkAgg):
     time_step = self.simulation.time_step
 
     sub_interval_start = (i - 1) * (DATA_TIME_REFRESH)
-    # incrémente car la dernière valeur n'est pas prise en compte
     sub_interval_end = (i) * (DATA_TIME_REFRESH) 
 
     # sous-intervalle
+    # incrémente car la dernière valeur n'est pas prise en compte
     time_range = np.arange(sub_interval_start, sub_interval_end + time_step, time_step)
 
     # simule les EDO sur la sous-intervalle (1h par exemple)
@@ -96,13 +96,10 @@ class PlotAnimation(FigureCanvasTkAgg):
     time_set = self.simulation.full_time_range[:last_index_value]
     time_set_in_hours = np.fromiter(map(lambda t: seconds_to_hour(t), time_set), dtype=np.float)
 
-    # should have 1 line for each data (iodine, xenon, neutrons flow)
     iodine = self.simulation.y_set[:last_index_value, 0]
     xenon = self.simulation.y_set[:last_index_value, 1]
     neutrons_flow = self.simulation.y_set[:last_index_value, 2]
 
-    #self.axes.clear()
-    #self.axes.plot(time_set, y_set, visible=True, linewidth=1)
     self.iodine.set_data(time_set_in_hours, iodine)
     self.xenon.set_data(time_set_in_hours, xenon)
     self.neutrons_flow.set_data(time_set_in_hours, neutrons_flow)
@@ -110,28 +107,22 @@ class PlotAnimation(FigureCanvasTkAgg):
     self.axes.relim()
     self.axes.autoscale_view()
 
-    # redraw canvas
-    #self.draw_idle()
-
     return self.iodine, self.xenon, self.neutrons_flow
 
   def animate(self, simulation, time_end):
     self.simulation = simulation
     self.time_end = time_end
 
-    plt.xlim(0, time_end)
-
     # https://github.com/matplotlib/matplotlib/issues/1656
+    # NOTE: blitting est plus rapide mais empêche de redimensionner dynamiquement le plot
     self.animation = animation.FuncAnimation(
       self.figure, 
       self.update,
-      # BUG: devrait aller jusque i = 100 (valeur de time_end si on choisi 100h de simulation)
-      # mais il dépasse 100 => out_of_bounds index
-      frames=range(1, time_end - 1),
+      frames=range(1, int(seconds_to_hour(time_end)) + 1),
       interval=PLOT_TIME_REFRESH,
-      init_func=self.init,
-      blit=True,
-      repeat=True
+      #init_func=self.init,
+      #blit=True,
+      repeat=False
     )
 
-    #self.animation.save('simu.mp4', writer="ffmpeg")
+    self.draw_idle()
