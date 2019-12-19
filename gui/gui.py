@@ -95,12 +95,20 @@ class GraphicInterface():
 
     self.pause_button = ttk.Button(parameters_frame, text="Pause", state="disabled", command=self.toggle_play_pause)
     self.pause_button.grid(row=4, column=0, columnspan=2, sticky="ew")
+
+    scalevar = tk.DoubleVar()
+
+    self.slider_title = ttk.Label(parameters_frame, text="Barres de contrôles", font=("Helvetica", 12))
+    self.slider_title.grid(row=5, column=0, sticky="new")
     
-    self.slider_control_bars = ttk.Scale(parameters_frame, var=tk.DoubleVar(), value=SIGMA_B_MIN, from_=SIGMA_B_MIN, to_=SIGMA_B_MAX, length=200, orient=tk.HORIZONTAL, command=self.update_sigma_b)
-    self.slider_control_bars.grid(row=4, column=0, columnspan=2, sticky="sew")
+    self.slider_title_variable = ttk.Label(parameters_frame, textvariable=scalevar, font=("Helvetica", 9))
+    self.slider_title_variable.grid(row=5, column=1, sticky="new")
+
+    self.slider_control_bars = ttk.Scale(parameters_frame, variable=scalevar, value=SIGMA_B_MIN, from_=SIGMA_B_MIN, to_=SIGMA_B_MAX, length=200, orient=tk.HORIZONTAL, command=self.update_sigma_b)
+    self.slider_control_bars.grid(row=5, column=0, columnspan=2, sticky="ew")
 
     quit_button = ttk.Button(parameters_frame, text="Quitter", command=self.quit)
-    quit_button.grid(row=5, column=0, columnspan=2, sticky="new")
+    quit_button.grid(row=5, column=0, columnspan=2, sticky="sew")
 
     # redimensionnement des boutons, textes
     for child in parameters_frame.winfo_children():
@@ -161,10 +169,12 @@ class GraphicInterface():
       self.neutrons_flow_plot.toggle(pause=False)
 
   def update_sigma_b(self, sigma_b):
+    #self.slider_title.config(text=f"Barres de contrôles {sigma_b}")
+
     if not self.simulation:
       return
 
-    self.simulation.sigma_b = float(sigma_b)
+    self.simulation.target_sigma_b = float(sigma_b)
 
   def quit(self):
     self.root.quit()

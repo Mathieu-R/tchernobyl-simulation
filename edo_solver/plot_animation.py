@@ -86,18 +86,22 @@ class PlotAnimation(FigureCanvasTkAgg):
     self.simulation.resolve(sub_interval=time_range)
     
     last_index_value = int(sub_interval_end / time_step)
+    twenty_four_hours_index = int((24 * 3600) / time_step)
+    twenty_four_hours = max(0, int(last_index_value - twenty_four_hours_index))
     #print(last_index_value)
 
     # mise à jour des CI
     self.simulation.ci = self.simulation.y_set[last_index_value]
 
     # récupère les données
-    time_set = self.simulation.full_time_range[:last_index_value]
+    time_set = self.simulation.full_time_range[twenty_four_hours:last_index_value]
     time_set_in_hours = np.fromiter(map(lambda t: seconds_to_hour(t), time_set), dtype=np.float)
 
-    iodine = self.simulation.y_set[:last_index_value, 0]
-    xenon = self.simulation.y_set[:last_index_value, 1]
-    neutrons_flow = self.simulation.y_set[:last_index_value, 2]
+    print(twenty_four_hours, last_index_value, twenty_four_hours_index)
+
+    iodine = self.simulation.y_set[twenty_four_hours:last_index_value, 0]
+    xenon = self.simulation.y_set[twenty_four_hours:last_index_value, 1]
+    neutrons_flow = self.simulation.y_set[twenty_four_hours:last_index_value, 2]
 
     self.iodine.set_data(time_set_in_hours, iodine)
     self.xenon.set_data(time_set_in_hours, xenon)

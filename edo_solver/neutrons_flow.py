@@ -7,6 +7,7 @@ class NeutronsFlow(RK4Method):
   def __init__(self, edo, ci, full_time_range, time_step):
     # barres de contrôle
     self.sigma_b = SIGMA_B_MIN
+    self.target_sigma_b = SIGMA_B_MIN
     self.timer_started = False
     self.timer_start = 0
     self.sigma_b_set = [SIGMA_B_MIN]
@@ -52,6 +53,17 @@ class NeutronsFlow(RK4Method):
     # en veillant à que sigma_b ne monte pas en dessus de la valeur minimale
     elif (y[2] > STABLE_FLOW):
       new_sigma_b = min(SIGMA_B_MAX, self.sigma_b + SIGMA_B_STEP)
+      self.sigma_b = new_sigma_b
+
+    if (self.sigma_b < self.target_sigma_b):
+      new_sigma_b = min(SIGMA_B_MAX, self.sigma_b + SIGMA_B_STEP)
+      self.sigma_b = new_sigma_b
+    
+    # Si le flux est plus haut que le flux stable 
+    # on augmente la section efficace des neutrons (sigma_b)
+    # en veillant à que sigma_b ne monte pas en dessus de la valeur minimale
+    elif (self.sigma_b > self.target_sigma_b):
+      new_sigma_b = max(SIGMA_B_MIN, self.sigma_b - SIGMA_B_STEP)
       self.sigma_b = new_sigma_b
 
     self.sigma_b_set.append(self.sigma_b)
