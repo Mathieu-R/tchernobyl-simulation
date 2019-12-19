@@ -4,11 +4,22 @@ Projet de méthodes numériques visant à simuler le réacteur d'une centrale nu
 
 Plus d'infos : https://cp3-git.irmp.ucl.ac.be/mdelcourt/lphys1201/wikis/projet-Tchernobyl
 
-### utilisation
+### utilisation (via environnement virtuelle)
 ```
 $ chmod +x setup.sh start.sh
 $ ./setup.sh
 $ ./start.sh
+```
+
+### utilisation (si la méthode du dessus ne fonctionne pas)
+```
+$ chmod +x easy_launch.sh
+$ ./easy_launch.sh
+```
+
+> Si jamais vous avez un problème du type _prompt\_toolkit error_
+```
+$ pip3 install prompt_toolkit==1.0.14
 ```
 
 ### captures
