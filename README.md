@@ -25,7 +25,7 @@ $ pip3 install prompt_toolkit==1.0.14
 #### OSX
 Il est préférable d'installer python 3 via le site officiel. Autrement il est possible de se retrouver avec une version de tkinter obsolète.
 
-#### Python
+#### Linux
 Packages à installer :
 
 - python3
