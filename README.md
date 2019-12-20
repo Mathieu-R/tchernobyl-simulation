@@ -22,6 +22,16 @@ $ ./easy_launch.sh
 $ pip3 install prompt_toolkit==1.0.14
 ```
 
+#### OSX
+Il est préférable d'installer python 3 via le site officiel. Autrement il est possible de se retrouver avec une version de tkinter obsolète.
+
+#### Python
+Packages à installer :
+
+- python3
+- python3-pip
+- python3-tk
+
 ### captures
 
 > Simulation du flux de neutrons avec explosion de la centrale.
